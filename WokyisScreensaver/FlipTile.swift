@@ -148,12 +148,17 @@ struct FlipTile: View {
         // Main flip rotation. `anchor: .center` of the full-height frame
         // puts the pivot exactly at the split line, so the visible top
         // half-card rotates through edge-on and lands at the bottom.
+        //
+        // perspective is kept under 1 to keep the projection matrix safely
+        // away from singular during the rotation; at perspective 1 SwiftUI
+        // intermittently logs "ignoring singular matrix" when the m22/m33
+        // entries get small enough that the determinant rounds to ~0.
         .rotation3DEffect(
             .degrees(angleX),
             axis: (x: 1, y: 0, z: 0),
             anchor: .center,
             anchorZ: 0,
-            perspective: 1
+            perspective: 0.5
         )
     }
 
