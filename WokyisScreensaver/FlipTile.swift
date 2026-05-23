@@ -79,6 +79,11 @@ struct FlipTile: View {
     /// `alignment`. The full-height frame is load-bearing: it makes the
     /// geometric centre of this view coincide with the split line, which is
     /// the pivot the flying card rotates around.
+    ///
+    /// The no-op `rotation3DEffect(.degrees(0))` modifiers force the Text
+    /// through the same Metal-based 3D rendering path the flying card uses,
+    /// so static and flying glyphs land on identical sub-pixel positions —
+    /// otherwise the snap at the end of a flip causes a hairline shift.
     private func halfCard(alignment: Alignment, value: Int) -> some View {
         ZStack(alignment: alignment) {
             cardShape(alignment: alignment)
@@ -87,6 +92,8 @@ struct FlipTile: View {
                 .frame(width: width, height: halfHeight)
 
             Text("\(value)")
+                .rotation3DEffect(.degrees(0), axis: (x: 0, y: 1, z: 0))
+                .rotation3DEffect(.degrees(0), axis: (x: 0, y: 0, z: 1))
                 .font(.system(size: size, weight: .semibold))
                 .fontDesign(.rounded)
                 .foregroundStyle(digitColor)
@@ -141,7 +148,7 @@ struct FlipTile: View {
             axis: (x: 1, y: 0, z: 0),
             anchor: .center,
             anchorZ: 0,
-            perspective: 0.5
+            perspective: 1
         )
     }
 

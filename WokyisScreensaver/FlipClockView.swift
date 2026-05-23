@@ -29,7 +29,7 @@ struct FlipClockView: View {
                             .padding(.leading, size * 0.10)
                     }
                 }
-                .padding(.horizontal, size * 0.10)
+                .padding(.horizontal, size * 0.72)
             }
         }
         .ignoresSafeArea()
@@ -52,7 +52,7 @@ struct FlipClockView: View {
         let pairGapCount:  CGFloat = showSeconds ? 3 : 2   // gaps inside each pair
         // AM/PM widget: HStack gap (0.08) + leading padding (0.10) + text (~0.28).
         let ampm: CGFloat = is24Hour ? 0 : 0.46
-        let sidePadding: CGFloat = 2 * 0.10
+        let sidePadding: CGFloat = 2 * 0.72   // one digit-width per edge
 
         let widthDivisor = tileCount * 0.72
                          + colonCount * 0.6
