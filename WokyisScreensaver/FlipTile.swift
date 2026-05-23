@@ -19,6 +19,7 @@ struct FlipTile: View {
     @State private var angleX: CGFloat = 0
     @State private var angleY: CGFloat = 0
     @State private var angleZ: CGFloat = 0
+    @State private var shadeOpacity: CGFloat = 0
 
     @State private var flipTask: Task<Void, Never>?
 
@@ -76,6 +77,15 @@ struct FlipTile: View {
     private func flyingTopLayer(showing value: Int) -> some View {
         VStack(spacing: gap) {
             halfCard(alignment: .top, value: value)
+                .overlay(alignment: .top) {
+                    LinearGradient(
+                        colors: [Color.black.opacity(shadeOpacity), .clear],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .frame(height: halfHeight)
+                    .allowsHitTesting(false)
+                }
             halfCard(alignment: .bottom, value: value)
         }
         // Mid-flip mirror — applied to the *content* of the rotating layer,
@@ -126,41 +136,36 @@ struct FlipTile: View {
     private func startFlip(to newDigit: Int) {
         flipTask?.cancel()
         flipTask = Task { @MainActor in
-            // Stage 0: the next digit is already what the bottom-layer
-            // bottom-half should show when the top layer flips past −90°.
             bottomLayerDigit = newDigit
 
-            // Stage 1: rotate top layer 0 → −90°, easeIn.
             withAnimation(.easeIn(duration: stageDuration)) {
                 angleX = -90
+                shadeOpacity = 0.6
             }
             try? await Task.sleep(nanoseconds: UInt64(stageDuration * 1_000_000_000))
             if Task.isCancelled {
                 angleX = 0; angleY = 0; angleZ = 0
+                shadeOpacity = 0
                 return
             }
 
-            // Stage 2 (instant, at angleX = −90°, tile is edge-on so invisible):
-            //  - mirror the layer's content via Y+Z 180° so the back side reads correctly,
-            //  - swap top-layer digit to the new value.
+            // At edge-on: clear the shade so the back side starts bright,
+            // mirror the content, swap to the new digit.
+            shadeOpacity = 0
             angleY = 180
             angleZ = 180
             topLayerDigit = newDigit
 
-            // Stage 3: rotate −90° → −180°, easeOut. Bottom half of new digit
-            // settles into place on top of the static bottom layer.
             withAnimation(.easeOut(duration: stageDuration)) {
                 angleX = -180
             }
             try? await Task.sleep(nanoseconds: UInt64(stageDuration * 1_000_000_000))
             if Task.isCancelled {
                 angleX = 0; angleY = 0; angleZ = 0
+                shadeOpacity = 0
                 return
             }
 
-            // Reset: hide the flying layer's mirror, snap rotation back to 0.
-            // No animation — the visual is identical (the static layer now
-            // shows the new digit on both halves).
             angleX = 0
             angleY = 0
             angleZ = 0
