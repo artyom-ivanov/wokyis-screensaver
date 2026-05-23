@@ -87,14 +87,33 @@ float snoise(float3 v) {
 // --- end simplex noise ----------------------------------------------------
 
 constant float SCALE      = 2.5;
+constant float LINE_COUNT = 8.0;
 constant float SPEED      = 0.10;
+constant float THICKNESS  = 1.0;
+constant float SOFTNESS   = 1.5;
+constant float HALO       = 2.0;
+constant float3 LINE_COLOR  = float3(1.0, 1.0, 1.0);
+constant float3 HALO_COLOR  = float3(0.42, 0.42, 0.42);
+constant float3 BG_COLOR    = float3(0.0, 0.0, 0.0);
 
 fragment float4 fs_main(VSOut in [[stage_in]],
                         constant Uniforms &u [[buffer(0)]]) {
     float aspect = u.viewportSize.x / u.viewportSize.y;
     float2 p = in.uv - 0.5;
     p.x *= aspect;
+
     float n = snoise(float3(p * SCALE, u.time * SPEED));
-    float g = 0.5 + 0.5 * n;
-    return float4(g, g, g, 1.0);
+    float bands = fract(n * LINE_COUNT) - 0.5;
+    float aa = fwidth(bands);
+
+    float core = 1.0 - smoothstep(THICKNESS * aa,
+                                  (THICKNESS + SOFTNESS) * aa,
+                                  abs(bands));
+    float halo = 1.0 - smoothstep((THICKNESS + SOFTNESS) * aa,
+                                  (THICKNESS + SOFTNESS + HALO) * aa,
+                                  abs(bands));
+
+    float3 color = mix(BG_COLOR, HALO_COLOR, halo);
+    color = mix(color, LINE_COLOR, core);
+    return float4(color, 1.0);
 }
