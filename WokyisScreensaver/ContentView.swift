@@ -76,6 +76,8 @@ struct ContentView: View {
             MetalView(settings: noiseSettings)
         case .gameOfLife:
             GameOfLifeView(palette: palette.wrappedValue, reseedTick: golReseedTick)
+        case .flipClock:
+            FlipClockView()
         }
     }
 
