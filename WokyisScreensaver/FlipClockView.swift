@@ -2,17 +2,22 @@ import SwiftUI
 
 struct FlipClockView: View {
     static let showSeconds: Bool = true   // flip to false once visuals are validated
+    let theme: FlipClockTheme
 
     @State private var digits: TimeDigits = .zero
     @State private var timer: Timer?
     @State private var is24Hour: Bool = FlipClockView.locale24Hour()
     @State private var isPM: Bool = false
 
+    init(theme: FlipClockTheme = .dark) {
+        self.theme = theme
+    }
+
     var body: some View {
         GeometryReader { proxy in
             let size = tileSize(for: proxy.size, showSeconds: Self.showSeconds)
             ZStack {
-                Color.black
+                theme.background
                 HStack(spacing: size * 0.08) {
                     pair(tens: digits.h1, units: digits.h2, size: size)
                     colonSeparator(size: size)
@@ -25,7 +30,7 @@ struct FlipClockView: View {
                         Text(isPM ? "PM" : "AM")
                             .font(.system(size: size * 0.18, weight: .semibold))
                             .fontDesign(.rounded)
-                            .foregroundStyle(Color(white: 0.55))
+                            .foregroundStyle(theme.ampm)
                             .padding(.leading, size * 0.10)
                     }
                 }
@@ -55,7 +60,7 @@ struct FlipClockView: View {
         let sidePadding: CGFloat = 2 * 0.72   // one digit-width per edge
 
         let widthDivisor = tileCount * 0.72
-                         + colonCount * 0.6
+                         + colonCount * 0.25
                          + outerGapCount * 0.08
                          + pairGapCount * 0.04
                          + ampm
@@ -68,8 +73,8 @@ struct FlipClockView: View {
 
     private func pair(tens: Int, units: Int, size: CGFloat) -> some View {
         HStack(spacing: size * 0.04) {
-            FlipTile(digit: tens, size: size)
-            FlipTile(digit: units, size: size)
+            FlipTile(digit: tens, size: size, theme: theme)
+            FlipTile(digit: units, size: size, theme: theme)
         }
     }
 
@@ -78,8 +83,8 @@ struct FlipClockView: View {
             Circle().frame(width: size * 0.10, height: size * 0.10)
             Circle().frame(width: size * 0.10, height: size * 0.10)
         }
-        .foregroundStyle(Color(white: 0.45))
-        .frame(width: size * 0.6, height: size * 1.10)
+        .foregroundStyle(theme.colon)
+        .frame(width: size * 0.25, height: size * 1.10)
     }
 
     // MARK: time source

@@ -16,6 +16,7 @@ import SwiftUI
 struct FlipTile: View {
     let digit: Int
     let size: CGFloat
+    let theme: FlipClockTheme
 
     @State private var bottomStaticDigit: Int
     @State private var topStaticDigit: Int
@@ -28,9 +29,10 @@ struct FlipTile: View {
 
     @State private var flipTask: Task<Void, Never>?
 
-    init(digit: Int, size: CGFloat) {
+    init(digit: Int, size: CGFloat, theme: FlipClockTheme) {
         self.digit = digit
         self.size = size
+        self.theme = theme
         self._bottomStaticDigit = State(initialValue: digit)
         self._topStaticDigit = State(initialValue: digit)
         self._flyingDigit = State(initialValue: digit)
@@ -44,8 +46,6 @@ struct FlipTile: View {
     private var radiusLarge: CGFloat { size * 0.08 }
     private var radiusSmall: CGFloat { size * 0.015 }
 
-    private let tileColor = Color(white: 0.18)
-    private let digitColor = Color(white: 0.92)
     private let stageDuration: TimeInterval = 0.3
 
     var body: some View {
@@ -87,8 +87,8 @@ struct FlipTile: View {
     private func halfCard(alignment: Alignment, value: Int) -> some View {
         ZStack(alignment: alignment) {
             cardShape(alignment: alignment)
-                .fill(tileColor)
-                .shadow(color: .black.opacity(0.35), radius: 2, x: 0, y: 1)
+                .fill(theme.tile)
+                .shadow(color: theme.tileShadow.opacity(theme.tileShadowOpacity), radius: 2, x: 0, y: 1)
                 .frame(width: width, height: halfHeight)
 
             Text("\(value)")
@@ -96,7 +96,7 @@ struct FlipTile: View {
                 .rotation3DEffect(.degrees(0), axis: (x: 0, y: 0, z: 1))
                 .font(.system(size: size, weight: .semibold))
                 .fontDesign(.rounded)
-                .foregroundStyle(digitColor)
+                .foregroundStyle(theme.digit)
                 .frame(width: width, height: height)
                 .mask(alignment: alignment) {
                     Rectangle().frame(height: halfHeight)
@@ -115,8 +115,8 @@ struct FlipTile: View {
         // space mask intact while still un-mirroring the back-face glyph.
         ZStack(alignment: .top) {
             cardShape(alignment: .top)
-                .fill(tileColor)
-                .shadow(color: .black.opacity(0.35), radius: 2, x: 0, y: 1)
+                .fill(theme.tile)
+                .shadow(color: theme.tileShadow.opacity(theme.tileShadowOpacity), radius: 2, x: 0, y: 1)
                 .frame(width: width, height: halfHeight)
 
             Text("\(value)")
@@ -124,7 +124,7 @@ struct FlipTile: View {
                 .rotation3DEffect(.degrees(angleZ), axis: (x: 0, y: 0, z: 1))
                 .font(.system(size: size, weight: .semibold))
                 .fontDesign(.rounded)
-                .foregroundStyle(digitColor)
+                .foregroundStyle(theme.digit)
                 .frame(width: width, height: height)
                 .mask(alignment: .top) {
                     Rectangle().frame(height: halfHeight)
@@ -222,7 +222,7 @@ struct FlipTile: View {
 #Preview {
     @Previewable @State var d: Int = 0
     VStack(spacing: 20) {
-        FlipTile(digit: d, size: 200)
+        FlipTile(digit: d, size: 200, theme: .dark)
         Button("flip → \((d + 1) % 10)") { d = (d + 1) % 10 }
     }
     .padding()

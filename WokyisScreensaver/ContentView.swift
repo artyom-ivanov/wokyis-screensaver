@@ -10,8 +10,9 @@ private final class HoverState {
 }
 
 struct ContentView: View {
-    @AppStorage("selectedScreensaver") private var selectionRaw: String = ScreensaverID.noise.rawValue
-    @AppStorage("paletteID")           private var paletteRaw:   String = Palette.default.id
+    @AppStorage("selectedScreensaver") private var selectionRaw:     String = ScreensaverID.noise.rawValue
+    @AppStorage("paletteID")           private var paletteRaw:       String = Palette.default.id
+    @AppStorage("flipClockTheme")      private var flipClockThemeRaw: String = FlipClockTheme.default.id
     @State private var noiseSettings = Settings()
     @State private var golReseedTick: Int = 0
     @State private var pickerVisible: Bool = false
@@ -28,6 +29,13 @@ struct ContentView: View {
         Binding(
             get: { Palette.by(id: paletteRaw) },
             set: { paletteRaw = $0.id }
+        )
+    }
+
+    private var flipClockTheme: Binding<FlipClockTheme> {
+        Binding(
+            get: { FlipClockTheme.by(id: flipClockThemeRaw) },
+            set: { flipClockThemeRaw = $0.id }
         )
     }
 
@@ -54,6 +62,11 @@ struct ContentView: View {
                         .padding(.bottom, 20)
                         .transition(.opacity)
                 }
+                if pickerVisible && selection.wrappedValue == .flipClock {
+                    FlipClockThemePicker(selection: flipClockTheme)
+                        .padding(.bottom, 20)
+                        .transition(.opacity)
+                }
             }
             .allowsHitTesting(pickerVisible)
         }
@@ -77,7 +90,7 @@ struct ContentView: View {
         case .gameOfLife:
             GameOfLifeView(palette: palette.wrappedValue, reseedTick: golReseedTick)
         case .flipClock:
-            FlipClockView()
+            FlipClockView(theme: flipClockTheme.wrappedValue)
         }
     }
 
