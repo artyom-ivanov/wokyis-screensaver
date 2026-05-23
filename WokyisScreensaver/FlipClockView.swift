@@ -21,6 +21,13 @@ struct FlipClockView: View {
                         colonSeparator(size: size)
                         pair(tens: digits.s1, units: digits.s2, size: size)
                     }
+                    if !is24Hour {
+                        Text(isPM ? "PM" : "AM")
+                            .font(.system(size: size * 0.18, weight: .semibold))
+                            .fontDesign(.rounded)
+                            .foregroundStyle(Color(white: 0.55))
+                            .padding(.leading, size * 0.10)
+                    }
                 }
             }
         }
@@ -37,9 +44,10 @@ struct FlipClockView: View {
     private func tileSize(for container: CGSize, showSeconds: Bool) -> CGFloat {
         let tileCount: CGFloat = showSeconds ? 6 : 4
         let colonCount: CGFloat = showSeconds ? 2 : 1
+        let ampmAllowance: CGFloat = is24Hour ? 0 : 0.6
         let widthBudget = container.width * 0.92
         let heightBudget = container.height * 0.65
-        let widthDriven = widthBudget / (tileCount * 0.72 + colonCount * 0.6)
+        let widthDriven = widthBudget / (tileCount * 0.72 + colonCount * 0.6 + ampmAllowance)
         let heightDriven = heightBudget / 1.10
         return min(widthDriven, heightDriven)
     }
