@@ -15,7 +15,7 @@ struct ContentView: View {
     @AppStorage("flipClockTheme")      private var flipClockThemeRaw: String = FlipClockTheme.default.id
     @AppStorage("flipClockFont")       private var flipClockFontRaw:  String = FlipClockFont.default.id
     @AppStorage("flipClockShowSeconds") private var flipClockShowSeconds: Bool = false
-    @State private var noiseSettings = Settings()
+    @State private var noiseSettings = TopographicSettings()
     @State private var golReseedTick: Int = 0
     @State private var pickerVisible: Bool = false
     @State private var hoverState = HoverState()
@@ -120,7 +120,7 @@ struct ContentView: View {
     private func screensaverView(for id: ScreensaverID) -> some View {
         switch id {
         case .noise:
-            MetalView(settings: noiseSettings)
+            TopographicView(settings: noiseSettings)
         case .gameOfLife:
             GameOfLifeView(palette: palette.wrappedValue, reseedTick: golReseedTick)
         case .flipClock:
