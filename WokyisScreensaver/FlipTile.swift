@@ -135,7 +135,10 @@ struct FlipTile: View {
                 angleX = -90
             }
             try? await Task.sleep(nanoseconds: UInt64(stageDuration * 1_000_000_000))
-            if Task.isCancelled { return }
+            if Task.isCancelled {
+                angleX = 0; angleY = 0; angleZ = 0
+                return
+            }
 
             // Stage 2 (instant, at angleX = −90°, tile is edge-on so invisible):
             //  - mirror the layer's content via Y+Z 180° so the back side reads correctly,
@@ -150,7 +153,10 @@ struct FlipTile: View {
                 angleX = -180
             }
             try? await Task.sleep(nanoseconds: UInt64(stageDuration * 1_000_000_000))
-            if Task.isCancelled { return }
+            if Task.isCancelled {
+                angleX = 0; angleY = 0; angleZ = 0
+                return
+            }
 
             // Reset: hide the flying layer's mirror, snap rotation back to 0.
             // No animation — the visual is identical (the static layer now
