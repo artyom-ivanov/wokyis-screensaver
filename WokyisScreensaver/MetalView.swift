@@ -6,14 +6,14 @@ struct MetalView: NSViewRepresentable {
         guard let device = MTLCreateSystemDefaultDevice() else {
             fatalError("Metal is not supported on this device")
         }
-        return Renderer(device: device)
+        return Renderer(device: device, pixelFormat: .bgra8Unorm)
     }
 
     func makeNSView(context: Context) -> MTKView {
         let view = MTKView()
-        view.device = MTLCreateSystemDefaultDevice()
+        view.device = context.coordinator.device
         view.colorPixelFormat = .bgra8Unorm
-        view.clearColor = MTLClearColor(red: 0.0, green: 0.5, blue: 0.8, alpha: 1.0)
+        view.clearColor = MTLClearColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)
         view.framebufferOnly = true
         view.isPaused = false
         view.enableSetNeedsDisplay = false
