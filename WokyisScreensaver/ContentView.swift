@@ -3,7 +3,9 @@ import AppKit
 
 struct ContentView: View {
     @AppStorage("selectedScreensaver") private var selectionRaw: String = ScreensaverID.noise.rawValue
+    @AppStorage("paletteID")           private var paletteRaw:   String = Palette.default.id
     @State private var noiseSettings = Settings()
+    @State private var golReseedTick: Int = 0
     @State private var pickerVisible: Bool = false
     @State private var hideWork: DispatchWorkItem?
 
@@ -14,22 +16,43 @@ struct ContentView: View {
         )
     }
 
+    private var palette: Binding<Palette> {
+        Binding(
+            get: { Palette.by(id: paletteRaw) },
+            set: { paletteRaw = $0.id }
+        )
+    }
+
     var body: some View {
         ZStack(alignment: .top) {
             screensaverView(for: selection.wrappedValue)
                 .ignoresSafeArea()
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    if selection.wrappedValue == .gameOfLife {
+                        golReseedTick &+= 1
+                    }
+                }
 
-            if pickerVisible {
-                ScreensaverPicker(selection: selection)
-                    .padding(.top, 20)
-                    .transition(.opacity)
+            VStack {
+                if pickerVisible {
+                    ScreensaverPicker(selection: selection)
+                        .padding(.top, 20)
+                        .transition(.opacity)
+                }
+                Spacer()
+                if pickerVisible && selection.wrappedValue == .gameOfLife {
+                    PalettePicker(selection: palette)
+                        .padding(.bottom, 20)
+                        .transition(.opacity)
+                }
             }
+            .allowsHitTesting(pickerVisible)
         }
         .animation(.easeInOut(duration: 0.18), value: pickerVisible)
         .onContinuousHover { phase in
             switch phase {
-            case .active:
-                bumpHover()
+            case .active: bumpHover()
             case .ended:
                 hideWork?.cancel()
                 pickerVisible = false
@@ -44,7 +67,7 @@ struct ContentView: View {
         case .noise:
             MetalView(settings: noiseSettings)
         case .gameOfLife:
-            GameOfLifeView()
+            GameOfLifeView(palette: palette.wrappedValue, reseedTick: golReseedTick)
         }
     }
 

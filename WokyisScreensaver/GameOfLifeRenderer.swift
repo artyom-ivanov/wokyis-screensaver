@@ -6,35 +6,32 @@ private struct GoLUniforms {
     var viewportSize: SIMD2<Float>
     var colorA: SIMD3<Float>
     var colorB: SIMD3<Float>
-    var wipeProgress: Float
-    var bandFraction: Float
     var cellInset: Float
-    var _pad: Float = 0
+    var _pad0: Float = 0
+    var _pad1: Float = 0
+    var _pad2: Float = 0
 }
 
 final class GameOfLifeRenderer: NSObject, MTKViewDelegate {
     let device: MTLDevice
     private let commandQueue: MTLCommandQueue
     private let pipelineState: MTLRenderPipelineState
-
-    private let engine: GameOfLifeEngine
-    private let textureNew: MTLTexture
-    private let textureOld: MTLTexture
-    private var uploadBuffer: [UInt8]
-
-    private let cols: Int
-    private let rows: Int
-    private var lastStepTime: CFTimeInterval = CACurrentMediaTime()
-
-    private let colorA: SIMD3<Float>
-    private let colorB: SIMD3<Float>
     private let config: GoLConfig
 
-    init(device: MTLDevice, pixelFormat: MTLPixelFormat, cols: Int, rows: Int, config: GoLConfig) {
+    private var palette: Palette
+    private var engine: GameOfLifeEngine!
+    private var gridTexture: MTLTexture!
+    private var uploadBuffer: [UInt8] = []
+    private var cols: Int = 0
+    private var rows: Int = 0
+    private var lastStepTime: CFTimeInterval = CACurrentMediaTime()
+    private var lastReseedTick: Int = 0
+    private var viewportSize: SIMD2<Float> = .zero
+
+    init(device: MTLDevice, pixelFormat: MTLPixelFormat, palette: Palette, config: GoLConfig) {
         self.device = device
-        self.cols = cols
-        self.rows = rows
         self.config = config
+        self.palette = palette
 
         guard let queue = device.makeCommandQueue() else {
             fatalError("Failed to create command queue")
@@ -60,39 +57,36 @@ final class GameOfLifeRenderer: NSObject, MTKViewDelegate {
             fatalError("GoL pipeline state failed: \(error)")
         }
 
-        let texDesc = MTLTextureDescriptor.texture2DDescriptor(
-            pixelFormat: .rgba8Unorm,
-            width: cols,
-            height: rows,
-            mipmapped: false
-        )
-        texDesc.usage = .shaderRead
-        texDesc.storageMode = .shared
-        guard let tNew = device.makeTexture(descriptor: texDesc),
-              let tOld = device.makeTexture(descriptor: texDesc) else {
-            fatalError("Failed to allocate grid textures")
-        }
-        self.textureNew = tNew
-        self.textureOld = tOld
-
-        self.engine = GameOfLifeEngine(cols: cols, rows: rows, config: config)
-        self.uploadBuffer = [UInt8](repeating: 0, count: cols * rows * 4)
-
-        // Palette: Orange × Electric per spec defaults.
-        self.colorA = SIMD3<Float>(1.0, 0x5E / 255.0, 0x16 / 255.0)
-        self.colorB = SIMD3<Float>(0x1E / 255.0, 0x55 / 255.0, 1.0)
-
         super.init()
 
-        uploadState(engine.current, to: textureNew)
-        uploadState(engine.current, to: textureOld)
+        // Bootstrap with a placeholder grid; the real size is set on first drawableSizeWillChange.
+        rebuildGrid(cols: config.cols, rows: max(1, Int(Double(config.cols) * 9.0 / 16.0)))
     }
 
-    func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
+    func setPalette(_ palette: Palette) {
+        self.palette = palette
+    }
+
+    func applyReseedIfNeeded(tick: Int) {
+        guard tick != lastReseedTick else { return }
+        lastReseedTick = tick
+        engine.reseed()
+        uploadState(engine.current, to: gridTexture)
+    }
+
+    func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
+        viewportSize = SIMD2<Float>(Float(size.width), Float(size.height))
+        // Derive rows so cells are visually square: aspect of the viewport drives rows/cols ratio.
+        let w = max(size.width, 1)
+        let h = max(size.height, 1)
+        let desiredCols = config.cols
+        let desiredRows = max(1, Int((Double(desiredCols) * h / w).rounded()))
+        if desiredRows != rows {
+            rebuildGrid(cols: desiredCols, rows: desiredRows)
+        }
+    }
 
     func draw(in view: MTKView) {
-        // Advance the simulation in real time. Cap catch-up to avoid spirals when
-        // the window loses focus and many step-intervals accumulate.
         let now = CACurrentMediaTime()
         let stepInterval = 1.0 / config.stepsPerSec
         let elapsed = now - lastStepTime
@@ -102,10 +96,7 @@ final class GameOfLifeRenderer: NSObject, MTKViewDelegate {
                 engine.step()
             }
             lastStepTime = now
-            uploadState(engine.current, to: textureNew)
-            if let oldState = engine.old {
-                uploadState(oldState, to: textureOld)
-            }
+            uploadState(engine.current, to: gridTexture)
         }
 
         guard
@@ -119,21 +110,38 @@ final class GameOfLifeRenderer: NSObject, MTKViewDelegate {
         var uniforms = GoLUniforms(
             gridSize: SIMD2<Float>(Float(cols), Float(rows)),
             viewportSize: SIMD2<Float>(Float(size.width), Float(size.height)),
-            colorA: colorA,
-            colorB: colorB,
-            wipeProgress: engine.wipeProgress,
-            bandFraction: config.wipeBandFraction,
+            colorA: palette.colorA,
+            colorB: palette.colorB,
             cellInset: 0.07
         )
 
         encoder.setRenderPipelineState(pipelineState)
         encoder.setFragmentBytes(&uniforms, length: MemoryLayout<GoLUniforms>.stride, index: 0)
-        encoder.setFragmentTexture(textureNew, index: 0)
-        encoder.setFragmentTexture(engine.old != nil ? textureOld : textureNew, index: 1)
+        encoder.setFragmentTexture(gridTexture, index: 0)
         encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
         encoder.endEncoding()
         commandBuffer.present(drawable)
         commandBuffer.commit()
+    }
+
+    private func rebuildGrid(cols: Int, rows: Int) {
+        self.cols = cols
+        self.rows = rows
+        let texDesc = MTLTextureDescriptor.texture2DDescriptor(
+            pixelFormat: .rgba8Unorm,
+            width: cols,
+            height: rows,
+            mipmapped: false
+        )
+        texDesc.usage = .shaderRead
+        texDesc.storageMode = .shared
+        guard let t = device.makeTexture(descriptor: texDesc) else {
+            fatalError("Failed to allocate grid texture")
+        }
+        self.gridTexture = t
+        self.engine = GameOfLifeEngine(cols: cols, rows: rows, config: config)
+        self.uploadBuffer = [UInt8](repeating: 0, count: cols * rows * 4)
+        uploadState(engine.current, to: gridTexture)
     }
 
     private func uploadState(_ s: GoLState, to texture: MTLTexture) {

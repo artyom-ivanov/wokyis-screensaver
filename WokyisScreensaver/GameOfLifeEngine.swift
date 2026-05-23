@@ -1,5 +1,4 @@
 import Foundation
-import QuartzCore
 
 struct GoLConfig {
     var cols: Int = 200
@@ -7,11 +6,6 @@ struct GoLConfig {
     var density: Double = 0.15
     var trailDecay: UInt8 = 9
     var preEvolveSteps: Int = 12
-    var stuckThreshold: Int = 32
-    var stuckTolerance: Int = 2
-    var hardCapGens: Int = 460
-    var wipeDuration: CFTimeInterval = 1.8
-    var wipeBandFraction: Float = 0.18  // of viewport width
 }
 
 struct GoLState {
@@ -31,12 +25,6 @@ struct GoLState {
         self.nextState = [UInt8](repeating: 0, count: count)
         self.trail = [UInt8](repeating: 0, count: count)
         self.trailColor = [UInt8](repeating: 0, count: count)
-    }
-
-    var population: Int {
-        var p = 0
-        for s in state where s != 0 { p += 1 }
-        return p
     }
 
     mutating func seed(density: Double) {
@@ -116,76 +104,23 @@ final class GameOfLifeEngine {
     let rows: Int
 
     private(set) var current: GoLState
-    private(set) var old: GoLState?
-
-    private(set) var wipeStart: CFTimeInterval?
-    private var generationCount: Int = 0
-    private var stuckCount: Int = 0
-    private var prevPopulation: Int = 0
 
     init(cols: Int, rows: Int, config: GoLConfig = GoLConfig()) {
         self.cols = cols
         self.rows = rows
         self.config = config
         self.current = GoLState(cols: cols, rows: rows)
-        seedCurrent()
-    }
-
-    /// 0 if not wiping, otherwise 0...1 progress.
-    var wipeProgress: Float {
-        guard let start = wipeStart else { return -1 }
-        let p = (CACurrentMediaTime() - start) / config.wipeDuration
-        return Float(min(max(p, 0), 1))
+        reseed()
     }
 
     func step() {
         current.step(trailDecay: config.trailDecay)
-        if old != nil {
-            old!.step(trailDecay: config.trailDecay)
-        }
-
-        if let start = wipeStart, CACurrentMediaTime() - start >= config.wipeDuration {
-            old = nil
-            wipeStart = nil
-        }
-
-        if wipeStart == nil {
-            generationCount += 1
-            let pop = current.population
-            if abs(pop - prevPopulation) <= config.stuckTolerance {
-                stuckCount += 1
-            } else {
-                stuckCount = 0
-            }
-            prevPopulation = pop
-
-            if pop == 0 || stuckCount >= config.stuckThreshold || generationCount >= config.hardCapGens {
-                startWipe()
-            }
-        }
     }
 
-    private func seedCurrent() {
+    func reseed() {
         current.seed(density: config.density)
         for _ in 0..<config.preEvolveSteps {
             current.step(trailDecay: config.trailDecay)
         }
-        generationCount = 0
-        stuckCount = 0
-        prevPopulation = current.population
-    }
-
-    private func startWipe() {
-        old = current
-        var fresh = GoLState(cols: cols, rows: rows)
-        fresh.seed(density: config.density)
-        for _ in 0..<config.preEvolveSteps {
-            fresh.step(trailDecay: config.trailDecay)
-        }
-        current = fresh
-        wipeStart = CACurrentMediaTime()
-        generationCount = 0
-        stuckCount = 0
-        prevPopulation = current.population
     }
 }
