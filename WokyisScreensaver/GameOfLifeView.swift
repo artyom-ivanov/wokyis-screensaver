@@ -25,6 +25,7 @@ struct GameOfLifeView: NSViewRepresentable {
         view.isPaused = false
         view.enableSetNeedsDisplay = false
         view.preferredFramesPerSecond = 30
+        (view.layer as? CAMetalLayer)?.maximumDrawableCount = 2
         view.delegate = context.coordinator
         return view
     }
@@ -32,5 +33,10 @@ struct GameOfLifeView: NSViewRepresentable {
     func updateNSView(_ nsView: MTKView, context: Context) {
         context.coordinator.setPalette(palette)
         context.coordinator.applyReseedIfNeeded(tick: reseedTick)
+    }
+
+    static func dismantleNSView(_ nsView: MTKView, coordinator: GameOfLifeRenderer) {
+        nsView.releaseDrawables()
+        nsView.delegate = nil
     }
 }
