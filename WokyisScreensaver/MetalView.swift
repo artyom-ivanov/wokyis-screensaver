@@ -20,9 +20,15 @@ struct MetalView: NSViewRepresentable {
         view.isPaused = false
         view.enableSetNeedsDisplay = false
         view.preferredFramesPerSecond = 120
+        (view.layer as? CAMetalLayer)?.maximumDrawableCount = 2
         view.delegate = context.coordinator
         return view
     }
 
     func updateNSView(_ nsView: MTKView, context: Context) {}
+
+    static func dismantleNSView(_ nsView: MTKView, coordinator: Renderer) {
+        nsView.releaseDrawables()
+        nsView.delegate = nil
+    }
 }
