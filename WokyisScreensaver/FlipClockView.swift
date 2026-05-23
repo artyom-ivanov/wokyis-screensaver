@@ -29,6 +29,7 @@ struct FlipClockView: View {
                             .padding(.leading, size * 0.10)
                     }
                 }
+                .padding(.horizontal, size * 0.10)
             }
         }
         .ignoresSafeArea()
@@ -41,14 +42,27 @@ struct FlipClockView: View {
 
     // MARK: layout
 
+    /// Picks a tile size such that the entire row (tiles + colons + HStack
+    /// gaps + pair gaps + AM/PM widget + horizontal padding) fits in the
+    /// container. Each term is the width of that element in `size` units.
     private func tileSize(for container: CGSize, showSeconds: Bool) -> CGFloat {
-        let tileCount: CGFloat = showSeconds ? 6 : 4
+        let tileCount:  CGFloat = showSeconds ? 6 : 4
         let colonCount: CGFloat = showSeconds ? 2 : 1
-        let ampmAllowance: CGFloat = is24Hour ? 0 : 0.6
-        let widthBudget = container.width * 0.92
-        let heightBudget = container.height * 0.65
-        let widthDriven = widthBudget / (tileCount * 0.72 + colonCount * 0.6 + ampmAllowance)
-        let heightDriven = heightBudget / 1.10
+        let outerGapCount: CGFloat = showSeconds ? 4 : 2   // gaps in outer HStack
+        let pairGapCount:  CGFloat = showSeconds ? 3 : 2   // gaps inside each pair
+        // AM/PM widget: HStack gap (0.08) + leading padding (0.10) + text (~0.28).
+        let ampm: CGFloat = is24Hour ? 0 : 0.46
+        let sidePadding: CGFloat = 2 * 0.10
+
+        let widthDivisor = tileCount * 0.72
+                         + colonCount * 0.6
+                         + outerGapCount * 0.08
+                         + pairGapCount * 0.04
+                         + ampm
+                         + sidePadding
+
+        let widthDriven = container.width / widthDivisor
+        let heightDriven = container.height * 0.65 / 1.10
         return min(widthDriven, heightDriven)
     }
 
