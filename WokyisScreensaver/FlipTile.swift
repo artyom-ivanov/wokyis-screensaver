@@ -140,6 +140,9 @@ struct FlipTile: View {
                 endPoint: .bottom
             )
             .frame(width: width, height: halfHeight)
+            // Clip to the card's rounded silhouette — otherwise the
+            // rectangular gradient pokes out past the rounded outer corners.
+            .clipShape(cardShape(alignment: .top))
             .allowsHitTesting(false)
         }
         // Main flip rotation. `anchor: .center` of the full-height frame
