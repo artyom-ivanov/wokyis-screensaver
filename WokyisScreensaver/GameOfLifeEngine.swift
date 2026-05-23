@@ -47,54 +47,60 @@ struct GoLState {
 
         state.withUnsafeBufferPointer { src in
             nextState.withUnsafeMutableBufferPointer { dst in
-                for y in 0..<r {
-                    let yUp   = (y == 0)     ? r - 1 : y - 1
-                    let yDown = (y == r - 1) ? 0     : y + 1
-                    let rowUp   = yUp * c
-                    let rowMid  = y * c
-                    let rowDown = yDown * c
-                    for x in 0..<c {
-                        let xL = (x == 0)     ? c - 1 : x - 1
-                        let xR = (x == c - 1) ? 0     : x + 1
+                trail.withUnsafeMutableBufferPointer { trailBuf in
+                    trailColor.withUnsafeMutableBufferPointer { trailColBuf in
+                        for y in 0..<r {
+                            let yUp   = (y == 0)     ? r - 1 : y - 1
+                            let yDown = (y == r - 1) ? 0     : y + 1
+                            let rowUp   = yUp * c
+                            let rowMid  = y * c
+                            let rowDown = yDown * c
+                            for x in 0..<c {
+                                let xL = (x == 0)     ? c - 1 : x - 1
+                                let xR = (x == c - 1) ? 0     : x + 1
+                                let idx = rowMid + x
 
-                        // Hot path: avoid the [n0...n7] array literal — it heap-allocates
-                        // per cell (22600 cells × 20 steps/s) and dominates step cost in Debug.
-                        var nA = 0, nB = 0
-                        @inline(__always) func tally(_ n: UInt8) {
-                            if n == 1 { nA &+= 1 } else if n == 2 { nB &+= 1 }
+                                var nA = 0, nB = 0
+                                @inline(__always) func tally(_ n: UInt8) {
+                                    if n == 1 { nA &+= 1 } else if n == 2 { nB &+= 1 }
+                                }
+                                tally(src[rowUp + xL])
+                                tally(src[rowUp + x])
+                                tally(src[rowUp + xR])
+                                tally(src[rowMid + xL])
+                                tally(src[rowMid + xR])
+                                tally(src[rowDown + xL])
+                                tally(src[rowDown + x])
+                                tally(src[rowDown + xR])
+                                let nTotal = nA + nB
+                                let current = src[idx]
+                                let nextVal: UInt8
+                                if current != 0 {
+                                    nextVal = (nTotal == 2 || nTotal == 3) ? current : 0
+                                } else {
+                                    nextVal = (nTotal == 3) ? (nA > nB ? 1 : 2) : 0
+                                }
+                                dst[idx] = nextVal
+
+                                // Trail update fused into the same pass — saves one
+                                // full sweep over 22600 cells per generation.
+                                if nextVal != 0 {
+                                    trailBuf[idx] = 255
+                                    trailColBuf[idx] = nextVal
+                                } else {
+                                    let t = trailBuf[idx]
+                                    if t > 0 {
+                                        trailBuf[idx] = t >= trailDecay ? t - trailDecay : 0
+                                    }
+                                }
+                            }
                         }
-                        tally(src[rowUp + xL])
-                        tally(src[rowUp + x])
-                        tally(src[rowUp + xR])
-                        tally(src[rowMid + xL])
-                        tally(src[rowMid + xR])
-                        tally(src[rowDown + xL])
-                        tally(src[rowDown + x])
-                        tally(src[rowDown + xR])
-                        let nTotal = nA + nB
-                        let current = src[rowMid + x]
-                        let nextVal: UInt8
-                        if current != 0 {
-                            nextVal = (nTotal == 2 || nTotal == 3) ? current : 0
-                        } else {
-                            nextVal = (nTotal == 3) ? (nA > nB ? 1 : 2) : 0
-                        }
-                        dst[rowMid + x] = nextVal
                     }
                 }
             }
         }
 
         swap(&state, &nextState)
-
-        for i in 0..<state.count {
-            if state[i] != 0 {
-                trail[i] = 255
-                trailColor[i] = state[i]
-            } else if trail[i] > 0 {
-                trail[i] = trail[i] >= trailDecay ? trail[i] - trailDecay : 0
-            }
-        }
     }
 }
 
