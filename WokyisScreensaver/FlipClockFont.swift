@@ -7,10 +7,9 @@ struct FlipClockFont: Identifiable, Equatable {
 
     static let rounded = FlipClockFont(id: "rounded", displayName: "Rounded", design: .rounded)
     static let sans    = FlipClockFont(id: "sans",    displayName: "Sans",    design: .default)
-    static let mono    = FlipClockFont(id: "mono",    displayName: "Mono",    design: .monospaced)
     static let serif   = FlipClockFont(id: "serif",   displayName: "Serif",   design: .serif)
 
-    static let all: [FlipClockFont] = [.rounded, .sans, .mono, .serif]
+    static let all: [FlipClockFont] = [.rounded, .sans, .serif]
     static let `default`: FlipClockFont = .rounded
 
     static func by(id: String) -> FlipClockFont {

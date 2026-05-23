@@ -14,7 +14,13 @@ struct FlipClockThemePicker: View {
         onLightBackground ? .black : .white
     }
     private var swatchStroke: Color {
-        onLightBackground ? Color.black.opacity(0.15) : Color.white.opacity(0.15)
+        onLightBackground ? Color.black.opacity(0.25) : Color.white.opacity(0.25)
+    }
+
+    /// Single colour that represents the theme as a whole — dark themes get
+    /// the tile colour (dark grey/black), light themes get white.
+    private func swatchColor(for theme: FlipClockTheme) -> Color {
+        theme.tile
     }
 
     var body: some View {
@@ -43,18 +49,9 @@ struct FlipClockThemePicker: View {
     }
 
     private func swatch(for theme: FlipClockTheme) -> some View {
-        RoundedRectangle(cornerRadius: 3, style: .continuous)
-            .fill(theme.tile)
-            .frame(width: 22, height: 18)
-            .overlay(
-                Text("8")
-                    .font(.system(size: 12, weight: .semibold))
-                    .fontDesign(.rounded)
-                    .foregroundStyle(theme.digit)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 3, style: .continuous)
-                    .stroke(swatchStroke, lineWidth: 0.5)
-            )
+        Circle()
+            .fill(swatchColor(for: theme))
+            .frame(width: 18, height: 18)
+            .overlay(Circle().stroke(swatchStroke, lineWidth: 0.5))
     }
 }

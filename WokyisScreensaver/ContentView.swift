@@ -83,7 +83,7 @@ struct ContentView: View {
                         .transition(.opacity)
                 }
                 if pickerVisible && selection.wrappedValue == .flipClock {
-                    VStack(spacing: 8) {
+                    HStack(spacing: 8) {
                         FlipClockFontPicker(
                             selection: flipClockFont,
                             onLightBackground: pickerOnLightBackground

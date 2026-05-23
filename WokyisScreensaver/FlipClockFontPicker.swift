@@ -23,7 +23,7 @@ struct FlipClockFontPicker: View {
                 Button {
                     selection = font
                 } label: {
-                    Text("8")
+                    Text("1")
                         .font(.system(size: 18, weight: .semibold))
                         .fontDesign(font.design)
                         .foregroundStyle(digitColor)
