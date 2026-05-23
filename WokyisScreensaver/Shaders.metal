@@ -4,6 +4,13 @@ using namespace metal;
 struct Uniforms {
     float2 viewportSize;
     float  time;
+    float  scale;
+    float  lineCount;
+    float  speed;
+    float  thickness;
+    float  softness;
+    float  halo;
+    float  haloBrightness;
 };
 
 struct VSOut {
@@ -86,15 +93,8 @@ float snoise(float3 v) {
 }
 // --- end simplex noise ----------------------------------------------------
 
-constant float SCALE      = 2.5;
-constant float LINE_COUNT = 8.0;
-constant float SPEED      = 0.10;
-constant float THICKNESS  = 1.0;
-constant float SOFTNESS   = 1.5;
-constant float HALO       = 2.0;
-constant float3 LINE_COLOR  = float3(1.0, 1.0, 1.0);
-constant float3 HALO_COLOR  = float3(0.42, 0.42, 0.42);
-constant float3 BG_COLOR    = float3(0.0, 0.0, 0.0);
+constant float3 LINE_COLOR = float3(1.0, 1.0, 1.0);
+constant float3 BG_COLOR   = float3(0.0, 0.0, 0.0);
 
 fragment float4 fs_main(VSOut in [[stage_in]],
                         constant Uniforms &u [[buffer(0)]]) {
@@ -102,18 +102,19 @@ fragment float4 fs_main(VSOut in [[stage_in]],
     float2 p = in.uv - 0.5;
     p.x *= aspect;
 
-    float n = snoise(float3(p * SCALE, u.time * SPEED));
-    float bands = fract(n * LINE_COUNT) - 0.5;
+    float n = snoise(float3(p * u.scale, u.time * u.speed));
+    float bands = fract(n * u.lineCount) - 0.5;
     float aa = fwidth(bands);
 
-    float core = 1.0 - smoothstep(THICKNESS * aa,
-                                  (THICKNESS + SOFTNESS) * aa,
+    float core = 1.0 - smoothstep(u.thickness * aa,
+                                  (u.thickness + u.softness) * aa,
                                   abs(bands));
-    float halo = 1.0 - smoothstep((THICKNESS + SOFTNESS) * aa,
-                                  (THICKNESS + SOFTNESS + HALO) * aa,
+    float halo = 1.0 - smoothstep((u.thickness + u.softness) * aa,
+                                  (u.thickness + u.softness + u.halo) * aa,
                                   abs(bands));
 
-    float3 color = mix(BG_COLOR, HALO_COLOR, halo);
+    float3 haloColor = float3(u.haloBrightness);
+    float3 color = mix(BG_COLOR, haloColor, halo);
     color = mix(color, LINE_COLOR, core);
     return float4(color, 1.0);
 }

@@ -4,6 +4,13 @@ import simd
 private struct Uniforms {
     var viewportSize: SIMD2<Float>
     var time: Float
+    var scale: Float
+    var lineCount: Float
+    var speed: Float
+    var thickness: Float
+    var softness: Float
+    var halo: Float
+    var haloBrightness: Float
 }
 
 final class Renderer: NSObject, MTKViewDelegate {
@@ -11,8 +18,10 @@ final class Renderer: NSObject, MTKViewDelegate {
     private let commandQueue: MTLCommandQueue
     private let pipelineState: MTLRenderPipelineState
     private let startTime: CFTimeInterval = CACurrentMediaTime()
+    private let settings: Settings
 
-    init(device: MTLDevice, pixelFormat: MTLPixelFormat) {
+    init(device: MTLDevice, pixelFormat: MTLPixelFormat, settings: Settings) {
+        self.settings = settings
         guard let queue = device.makeCommandQueue() else {
             fatalError("Failed to create Metal command queue")
         }
@@ -52,7 +61,14 @@ final class Renderer: NSObject, MTKViewDelegate {
         let size = view.drawableSize
         var uniforms = Uniforms(
             viewportSize: SIMD2<Float>(Float(size.width), Float(size.height)),
-            time: Float(CACurrentMediaTime() - startTime)
+            time: Float(CACurrentMediaTime() - startTime),
+            scale: settings.scale,
+            lineCount: settings.lineCount,
+            speed: settings.speed,
+            thickness: settings.thickness,
+            softness: settings.softness,
+            halo: settings.halo,
+            haloBrightness: settings.haloBrightness
         )
 
         encoder.setRenderPipelineState(pipelineState)

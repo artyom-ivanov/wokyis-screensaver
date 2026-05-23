@@ -2,11 +2,13 @@ import SwiftUI
 import MetalKit
 
 struct MetalView: NSViewRepresentable {
+    let settings: Settings
+
     func makeCoordinator() -> Renderer {
         guard let device = MTLCreateSystemDefaultDevice() else {
             fatalError("Metal is not supported on this device")
         }
-        return Renderer(device: device, pixelFormat: .bgra8Unorm)
+        return Renderer(device: device, pixelFormat: .bgra8Unorm, settings: settings)
     }
 
     func makeNSView(context: Context) -> MTKView {
