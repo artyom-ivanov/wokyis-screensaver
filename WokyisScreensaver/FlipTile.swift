@@ -99,30 +99,50 @@ struct FlipTile: View {
     }
 
     private func flyingTopHalf(showing value: Int) -> some View {
-        halfCard(alignment: .top, value: value)
-            .overlay(alignment: .top) {
-                LinearGradient(
-                    colors: [Color.black.opacity(shadeOpacity), .clear],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
+        // Inlined half-card so the Y/Z mid-flip mirror can be applied to the
+        // Text *before* the mask. The mask defines the visible region in
+        // screen space; if Y/Z rotates the masked output, it ends up
+        // vertically mirroring the visible region itself, which undoes the
+        // bottom half of the X rotation — the card never appears to land at
+        // the bottom. Applying Y/Z to the unmasked Text leaves the screen-
+        // space mask intact while still un-mirroring the back-face glyph.
+        ZStack(alignment: .top) {
+            cardShape(alignment: .top)
+                .fill(tileColor)
+                .shadow(color: .black.opacity(0.35), radius: 2, x: 0, y: 1)
                 .frame(width: width, height: halfHeight)
-                .allowsHitTesting(false)
-            }
-            // Mid-flip content mirror. At angleX = −90 the card is edge-on
-            // (invisible); we then snap angleY and angleZ to 180 so the back
-            // face reads correctly once it rotates into view in stage 2.
-            .rotation3DEffect(.degrees(angleY), axis: (x: 0, y: 1, z: 0))
-            .rotation3DEffect(.degrees(angleZ), axis: (x: 0, y: 0, z: 1))
-            // Main flip rotation. `anchor: .center` of a full-height frame
-            // puts the pivot exactly at the split line.
-            .rotation3DEffect(
-                .degrees(angleX),
-                axis: (x: 1, y: 0, z: 0),
-                anchor: .center,
-                anchorZ: 0,
-                perspective: 0.5
+
+            Text("\(value)")
+                .rotation3DEffect(.degrees(angleY), axis: (x: 0, y: 1, z: 0))
+                .rotation3DEffect(.degrees(angleZ), axis: (x: 0, y: 0, z: 1))
+                .font(.system(size: size, weight: .semibold))
+                .fontDesign(.rounded)
+                .foregroundStyle(digitColor)
+                .frame(width: width, height: height)
+                .mask(alignment: .top) {
+                    Rectangle().frame(height: halfHeight)
+                }
+        }
+        .frame(width: width, height: height, alignment: .top)
+        .overlay(alignment: .top) {
+            LinearGradient(
+                colors: [Color.black.opacity(shadeOpacity), .clear],
+                startPoint: .top,
+                endPoint: .bottom
             )
+            .frame(width: width, height: halfHeight)
+            .allowsHitTesting(false)
+        }
+        // Main flip rotation. `anchor: .center` of the full-height frame
+        // puts the pivot exactly at the split line, so the visible top
+        // half-card rotates through edge-on and lands at the bottom.
+        .rotation3DEffect(
+            .degrees(angleX),
+            axis: (x: 1, y: 0, z: 0),
+            anchor: .center,
+            anchorZ: 0,
+            perspective: 0.5
+        )
     }
 
     private func cardShape(alignment: Alignment) -> UnevenRoundedRectangle {
