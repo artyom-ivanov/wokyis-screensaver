@@ -50,14 +50,21 @@ struct FlipTile: View {
 
     var body: some View {
         ZStack {
+            // Static bottom section: holds OLD until the flying card lands.
             halfCard(alignment: .bottom, value: bottomStaticDigit)
-            halfCard(alignment: .top, value: topStaticDigit)
-            // zIndex forces the flying card to stay in front of both static
-            // halves throughout the rotation. Without it, perspective +
-            // anchor: .center makes parts of the rotating layer dip behind
-            // z = 0, and SwiftUI's depth-aware compositing then renders the
-            // static bottom half on top of the flying card mid-flip.
+
+            // Top section. The flying (rotating) half-card sits in front of a
+            // static top-aligned background that's pre-set to NEW and emerges
+            // as the flying card rotates away. Bundling them together with
+            // `.background` (so they're a single composited unit) and putting
+            // zIndex(1) on the whole section is what reliably keeps this
+            // assembly above the static bottom half throughout the rotation;
+            // siblings-with-zIndex doesn't survive SwiftUI's depth-aware
+            // compositing once perspective is in play.
             flyingTopHalf(showing: flyingDigit)
+                .background {
+                    halfCard(alignment: .top, value: topStaticDigit)
+                }
                 .zIndex(1)
         }
         .frame(width: width, height: height)
