@@ -17,6 +17,7 @@ struct FlipTile: View {
     let digit: Int
     let size: CGFloat
     let theme: FlipClockTheme
+    let font: FlipClockFont
 
     @State private var bottomStaticDigit: Int
     @State private var topStaticDigit: Int
@@ -29,10 +30,11 @@ struct FlipTile: View {
 
     @State private var flipTask: Task<Void, Never>?
 
-    init(digit: Int, size: CGFloat, theme: FlipClockTheme) {
+    init(digit: Int, size: CGFloat, theme: FlipClockTheme, font: FlipClockFont) {
         self.digit = digit
         self.size = size
         self.theme = theme
+        self.font = font
         self._bottomStaticDigit = State(initialValue: digit)
         self._topStaticDigit = State(initialValue: digit)
         self._flyingDigit = State(initialValue: digit)
@@ -95,7 +97,7 @@ struct FlipTile: View {
                 .rotation3DEffect(.degrees(0), axis: (x: 0, y: 1, z: 0))
                 .rotation3DEffect(.degrees(0), axis: (x: 0, y: 0, z: 1))
                 .font(.system(size: size, weight: .semibold))
-                .fontDesign(.rounded)
+                .fontDesign(font.design)
                 .foregroundStyle(theme.digit)
                 .frame(width: width, height: height)
                 .mask(alignment: alignment) {
@@ -123,7 +125,7 @@ struct FlipTile: View {
                 .rotation3DEffect(.degrees(angleY), axis: (x: 0, y: 1, z: 0))
                 .rotation3DEffect(.degrees(angleZ), axis: (x: 0, y: 0, z: 1))
                 .font(.system(size: size, weight: .semibold))
-                .fontDesign(.rounded)
+                .fontDesign(font.design)
                 .foregroundStyle(theme.digit)
                 .frame(width: width, height: height)
                 .mask(alignment: .top) {
@@ -222,7 +224,7 @@ struct FlipTile: View {
 #Preview {
     @Previewable @State var d: Int = 0
     VStack(spacing: 20) {
-        FlipTile(digit: d, size: 200, theme: .dark)
+        FlipTile(digit: d, size: 200, theme: .dark, font: .rounded)
         Button("flip → \((d + 1) % 10)") { d = (d + 1) % 10 }
     }
     .padding()

@@ -3,14 +3,16 @@ import SwiftUI
 struct FlipClockView: View {
     static let showSeconds: Bool = true   // flip to false once visuals are validated
     let theme: FlipClockTheme
+    let font: FlipClockFont
 
     @State private var digits: TimeDigits = .zero
     @State private var timer: Timer?
     @State private var is24Hour: Bool = FlipClockView.locale24Hour()
     @State private var isPM: Bool = false
 
-    init(theme: FlipClockTheme = .dark) {
+    init(theme: FlipClockTheme = .dark, font: FlipClockFont = .rounded) {
         self.theme = theme
+        self.font = font
     }
 
     var body: some View {
@@ -29,7 +31,7 @@ struct FlipClockView: View {
                     if !is24Hour {
                         Text(isPM ? "PM" : "AM")
                             .font(.system(size: size * 0.18, weight: .semibold))
-                            .fontDesign(.rounded)
+                            .fontDesign(font.design)
                             .foregroundStyle(theme.ampm)
                             .padding(.leading, size * 0.10)
                     }
@@ -73,8 +75,8 @@ struct FlipClockView: View {
 
     private func pair(tens: Int, units: Int, size: CGFloat) -> some View {
         HStack(spacing: size * 0.04) {
-            FlipTile(digit: tens, size: size, theme: theme)
-            FlipTile(digit: units, size: size, theme: theme)
+            FlipTile(digit: tens, size: size, theme: theme, font: font)
+            FlipTile(digit: units, size: size, theme: theme, font: font)
         }
     }
 

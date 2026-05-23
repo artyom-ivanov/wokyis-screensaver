@@ -13,6 +13,7 @@ struct ContentView: View {
     @AppStorage("selectedScreensaver") private var selectionRaw:     String = ScreensaverID.noise.rawValue
     @AppStorage("paletteID")           private var paletteRaw:       String = Palette.default.id
     @AppStorage("flipClockTheme")      private var flipClockThemeRaw: String = FlipClockTheme.default.id
+    @AppStorage("flipClockFont")       private var flipClockFontRaw:  String = FlipClockFont.default.id
     @State private var noiseSettings = Settings()
     @State private var golReseedTick: Int = 0
     @State private var pickerVisible: Bool = false
@@ -36,6 +37,13 @@ struct ContentView: View {
         Binding(
             get: { FlipClockTheme.by(id: flipClockThemeRaw) },
             set: { flipClockThemeRaw = $0.id }
+        )
+    }
+
+    private var flipClockFont: Binding<FlipClockFont> {
+        Binding(
+            get: { FlipClockFont.by(id: flipClockFontRaw) },
+            set: { flipClockFontRaw = $0.id }
         )
     }
 
@@ -75,10 +83,16 @@ struct ContentView: View {
                         .transition(.opacity)
                 }
                 if pickerVisible && selection.wrappedValue == .flipClock {
-                    FlipClockThemePicker(
-                        selection: flipClockTheme,
-                        onLightBackground: pickerOnLightBackground
-                    )
+                    VStack(spacing: 8) {
+                        FlipClockFontPicker(
+                            selection: flipClockFont,
+                            onLightBackground: pickerOnLightBackground
+                        )
+                        FlipClockThemePicker(
+                            selection: flipClockTheme,
+                            onLightBackground: pickerOnLightBackground
+                        )
+                    }
                     .padding(.bottom, 20)
                     .transition(.opacity)
                 }
@@ -105,7 +119,10 @@ struct ContentView: View {
         case .gameOfLife:
             GameOfLifeView(palette: palette.wrappedValue, reseedTick: golReseedTick)
         case .flipClock:
-            FlipClockView(theme: flipClockTheme.wrappedValue)
+            FlipClockView(
+                theme: flipClockTheme.wrappedValue,
+                font: flipClockFont.wrappedValue
+            )
         }
     }
 
