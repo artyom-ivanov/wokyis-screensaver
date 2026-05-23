@@ -4,18 +4,7 @@ struct FlipClockSecondsPicker: View {
     @Binding var showSeconds: Bool
     var onLightBackground: Bool = false
 
-    private var selectedFill: Color {
-        onLightBackground ? Color.black.opacity(0.18) : Color.white.opacity(0.22)
-    }
-    private var unselectedFill: Color {
-        onLightBackground ? Color.black.opacity(0.06) : Color.white.opacity(0.08)
-    }
-    private var selectedStroke: Color {
-        onLightBackground ? .black : .white
-    }
-    private var textColor: Color {
-        onLightBackground ? .black : .white
-    }
+    private var style: FlipClockPickerStyle { .init(onLightBackground: onLightBackground) }
 
     var body: some View {
         HStack(spacing: 8) {
@@ -30,16 +19,16 @@ struct FlipClockSecondsPicker: View {
         Button(action: action) {
             Text(label)
                 .font(.system(size: 12, weight: .semibold).monospacedDigit())
-                .foregroundStyle(textColor)
+                .foregroundStyle(style.foreground)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 8)
                 .background(
                     Capsule()
-                        .fill(isSelected ? selectedFill : unselectedFill)
+                        .fill(isSelected ? style.selectedFill : style.unselectedFill)
                 )
                 .overlay(
                     Capsule()
-                        .stroke(isSelected ? selectedStroke : Color.clear, lineWidth: 1.5)
+                        .stroke(isSelected ? style.selectedStroke : Color.clear, lineWidth: 1.5)
                 )
         }
         .buttonStyle(.plain)
