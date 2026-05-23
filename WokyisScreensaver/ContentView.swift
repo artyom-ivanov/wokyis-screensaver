@@ -39,6 +39,15 @@ struct ContentView: View {
         )
     }
 
+    /// Whether the screensaver currently shows a light background, so the
+    /// hover-pickers can switch to dark-on-light styling for legibility.
+    private var pickerOnLightBackground: Bool {
+        switch selection.wrappedValue {
+        case .flipClock: return flipClockTheme.wrappedValue.id == FlipClockTheme.light.id
+        default:         return false
+        }
+    }
+
     var body: some View {
         ZStack(alignment: .top) {
             screensaverView(for: selection.wrappedValue)
@@ -52,9 +61,12 @@ struct ContentView: View {
 
             VStack {
                 if pickerVisible {
-                    ScreensaverPicker(selection: selection)
-                        .padding(.top, 20)
-                        .transition(.opacity)
+                    ScreensaverPicker(
+                        selection: selection,
+                        onLightBackground: pickerOnLightBackground
+                    )
+                    .padding(.top, 20)
+                    .transition(.opacity)
                 }
                 Spacer()
                 if pickerVisible && selection.wrappedValue == .gameOfLife {
@@ -63,9 +75,12 @@ struct ContentView: View {
                         .transition(.opacity)
                 }
                 if pickerVisible && selection.wrappedValue == .flipClock {
-                    FlipClockThemePicker(selection: flipClockTheme)
-                        .padding(.bottom, 20)
-                        .transition(.opacity)
+                    FlipClockThemePicker(
+                        selection: flipClockTheme,
+                        onLightBackground: pickerOnLightBackground
+                    )
+                    .padding(.bottom, 20)
+                    .transition(.opacity)
                 }
             }
             .allowsHitTesting(pickerVisible)

@@ -2,6 +2,20 @@ import SwiftUI
 
 struct FlipClockThemePicker: View {
     @Binding var selection: FlipClockTheme
+    var onLightBackground: Bool = false
+
+    private var selectedFill: Color {
+        onLightBackground ? Color.black.opacity(0.18) : Color.white.opacity(0.22)
+    }
+    private var unselectedFill: Color {
+        onLightBackground ? Color.black.opacity(0.06) : Color.white.opacity(0.08)
+    }
+    private var selectedStroke: Color {
+        onLightBackground ? .black : .white
+    }
+    private var swatchStroke: Color {
+        onLightBackground ? Color.black.opacity(0.15) : Color.white.opacity(0.15)
+    }
 
     var body: some View {
         HStack(spacing: 8) {
@@ -14,11 +28,11 @@ struct FlipClockThemePicker: View {
                         .padding(.vertical, 8)
                         .background(
                             Capsule()
-                                .fill(theme.id == selection.id ? Color.white.opacity(0.22) : Color.white.opacity(0.08))
+                                .fill(theme.id == selection.id ? selectedFill : unselectedFill)
                         )
                         .overlay(
                             Capsule()
-                                .stroke(theme.id == selection.id ? Color.white : Color.clear, lineWidth: 1.5)
+                                .stroke(theme.id == selection.id ? selectedStroke : Color.clear, lineWidth: 1.5)
                         )
                 }
                 .buttonStyle(.plain)
@@ -40,7 +54,7 @@ struct FlipClockThemePicker: View {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 3, style: .continuous)
-                    .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
+                    .stroke(swatchStroke, lineWidth: 0.5)
             )
     }
 }
