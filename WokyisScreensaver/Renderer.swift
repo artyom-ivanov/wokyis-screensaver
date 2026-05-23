@@ -10,7 +10,6 @@ final class Renderer: NSObject, MTKViewDelegate {
     let device: MTLDevice
     private let commandQueue: MTLCommandQueue
     private let pipelineState: MTLRenderPipelineState
-    private var viewportSize: SIMD2<Float> = .zero
     private let startTime: CFTimeInterval = CACurrentMediaTime()
 
     init(device: MTLDevice, pixelFormat: MTLPixelFormat) {
@@ -40,9 +39,7 @@ final class Renderer: NSObject, MTKViewDelegate {
         super.init()
     }
 
-    func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
-        viewportSize = SIMD2<Float>(Float(size.width), Float(size.height))
-    }
+    func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {}
 
     func draw(in view: MTKView) {
         guard
@@ -52,8 +49,9 @@ final class Renderer: NSObject, MTKViewDelegate {
             let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor)
         else { return }
 
+        let size = view.drawableSize
         var uniforms = Uniforms(
-            viewportSize: viewportSize,
+            viewportSize: SIMD2<Float>(Float(size.width), Float(size.height)),
             time: Float(CACurrentMediaTime() - startTime)
         )
 
