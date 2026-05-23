@@ -5,7 +5,7 @@ struct GoLConfig {
     var stepsPerSec: Double = 20
     var density: Double = 0.15
     var trailDecay: UInt8 = 9
-    var preEvolveSteps: Int = 12
+    var preEvolveSteps: Int = 6
 }
 
 struct GoLState {
@@ -57,20 +57,20 @@ struct GoLState {
                         let xL = (x == 0)     ? c - 1 : x - 1
                         let xR = (x == c - 1) ? 0     : x + 1
 
-                        let n0 = src[rowUp + xL]
-                        let n1 = src[rowUp + x]
-                        let n2 = src[rowUp + xR]
-                        let n3 = src[rowMid + xL]
-                        let n4 = src[rowMid + xR]
-                        let n5 = src[rowDown + xL]
-                        let n6 = src[rowDown + x]
-                        let n7 = src[rowDown + xR]
-
+                        // Hot path: avoid the [n0...n7] array literal — it heap-allocates
+                        // per cell (22600 cells × 20 steps/s) and dominates step cost in Debug.
                         var nA = 0, nB = 0
-                        for n in [n0, n1, n2, n3, n4, n5, n6, n7] {
-                            if n == 1 { nA += 1 }
-                            else if n == 2 { nB += 1 }
+                        @inline(__always) func tally(_ n: UInt8) {
+                            if n == 1 { nA &+= 1 } else if n == 2 { nB &+= 1 }
                         }
+                        tally(src[rowUp + xL])
+                        tally(src[rowUp + x])
+                        tally(src[rowUp + xR])
+                        tally(src[rowMid + xL])
+                        tally(src[rowMid + xR])
+                        tally(src[rowDown + xL])
+                        tally(src[rowDown + x])
+                        tally(src[rowDown + xR])
                         let nTotal = nA + nB
                         let current = src[rowMid + x]
                         let nextVal: UInt8

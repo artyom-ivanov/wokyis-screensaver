@@ -1,13 +1,21 @@
 import SwiftUI
 import AppKit
 
+/// Reference-typed holder so updating the timer doesn't churn `@State`
+/// (which would re-render the whole view tree on every mouse-pixel
+/// move via `.onContinuousHover`).
+private final class HoverState {
+    var hideWork: DispatchWorkItem?
+    var keyMonitor: Any?
+}
+
 struct ContentView: View {
     @AppStorage("selectedScreensaver") private var selectionRaw: String = ScreensaverID.noise.rawValue
     @AppStorage("paletteID")           private var paletteRaw:   String = Palette.default.id
     @State private var noiseSettings = Settings()
     @State private var golReseedTick: Int = 0
     @State private var pickerVisible: Bool = false
-    @State private var hideWork: DispatchWorkItem?
+    @State private var hoverState = HoverState()
 
     private var selection: Binding<ScreensaverID> {
         Binding(
@@ -54,8 +62,8 @@ struct ContentView: View {
             switch phase {
             case .active: bumpHover()
             case .ended:
-                hideWork?.cancel()
-                pickerVisible = false
+                hoverState.hideWork?.cancel()
+                if pickerVisible { pickerVisible = false }
             }
         }
         .onAppear { installKeyMonitor() }
@@ -72,15 +80,16 @@ struct ContentView: View {
     }
 
     private func bumpHover() {
-        pickerVisible = true
-        hideWork?.cancel()
+        if !pickerVisible { pickerVisible = true }
+        hoverState.hideWork?.cancel()
         let work = DispatchWorkItem { pickerVisible = false }
-        hideWork = work
+        hoverState.hideWork = work
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5, execute: work)
     }
 
     private func installKeyMonitor() {
-        NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+        guard hoverState.keyMonitor == nil else { return }
+        hoverState.keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
             if event.keyCode == 53 { // Esc
                 NSApp.terminate(nil)
                 return nil
