@@ -52,7 +52,13 @@ struct FlipTile: View {
         ZStack {
             halfCard(alignment: .bottom, value: bottomStaticDigit)
             halfCard(alignment: .top, value: topStaticDigit)
+            // zIndex forces the flying card to stay in front of both static
+            // halves throughout the rotation. Without it, perspective +
+            // anchor: .center makes parts of the rotating layer dip behind
+            // z = 0, and SwiftUI's depth-aware compositing then renders the
+            // static bottom half on top of the flying card mid-flip.
             flyingTopHalf(showing: flyingDigit)
+                .zIndex(1)
         }
         .frame(width: width, height: height)
         .onChange(of: digit) { _, newValue in
