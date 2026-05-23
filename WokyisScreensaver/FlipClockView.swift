@@ -1,30 +1,31 @@
 import SwiftUI
 
 struct FlipClockView: View {
-    static let showSeconds: Bool = true   // flip to false once visuals are validated
     let theme: FlipClockTheme
     let font: FlipClockFont
+    let showSeconds: Bool
 
     @State private var digits: TimeDigits = .zero
     @State private var timer: Timer?
     @State private var is24Hour: Bool = FlipClockView.locale24Hour()
     @State private var isPM: Bool = false
 
-    init(theme: FlipClockTheme = .dark, font: FlipClockFont = .rounded) {
+    init(theme: FlipClockTheme = .dark, font: FlipClockFont = .rounded, showSeconds: Bool = false) {
         self.theme = theme
         self.font = font
+        self.showSeconds = showSeconds
     }
 
     var body: some View {
         GeometryReader { proxy in
-            let size = tileSize(for: proxy.size, showSeconds: Self.showSeconds)
+            let size = tileSize(for: proxy.size, showSeconds: showSeconds)
             ZStack {
                 theme.background
                 HStack(spacing: size * 0.08) {
                     pair(tens: digits.h1, units: digits.h2, size: size)
                     colonSeparator(size: size)
                     pair(tens: digits.m1, units: digits.m2, size: size)
-                    if Self.showSeconds {
+                    if showSeconds {
                         colonSeparator(size: size)
                         pair(tens: digits.s1, units: digits.s2, size: size)
                     }

@@ -14,6 +14,7 @@ struct ContentView: View {
     @AppStorage("paletteID")           private var paletteRaw:       String = Palette.default.id
     @AppStorage("flipClockTheme")      private var flipClockThemeRaw: String = FlipClockTheme.default.id
     @AppStorage("flipClockFont")       private var flipClockFontRaw:  String = FlipClockFont.default.id
+    @AppStorage("flipClockShowSeconds") private var flipClockShowSeconds: Bool = false
     @State private var noiseSettings = Settings()
     @State private var golReseedTick: Int = 0
     @State private var pickerVisible: Bool = false
@@ -84,6 +85,10 @@ struct ContentView: View {
                 }
                 if pickerVisible && selection.wrappedValue == .flipClock {
                     HStack(spacing: 8) {
+                        FlipClockSecondsPicker(
+                            showSeconds: $flipClockShowSeconds,
+                            onLightBackground: pickerOnLightBackground
+                        )
                         FlipClockFontPicker(
                             selection: flipClockFont,
                             onLightBackground: pickerOnLightBackground
@@ -121,7 +126,8 @@ struct ContentView: View {
         case .flipClock:
             FlipClockView(
                 theme: flipClockTheme.wrappedValue,
-                font: flipClockFont.wrappedValue
+                font: flipClockFont.wrappedValue,
+                showSeconds: flipClockShowSeconds
             )
         }
     }
