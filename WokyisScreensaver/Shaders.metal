@@ -103,8 +103,9 @@ fragment float4 fs_main(VSOut in [[stage_in]],
     p.x *= aspect;
 
     float n = snoise(float3(p * u.scale, u.time * u.speed));
-    float bands = fract(n * u.lineCount) - 0.5;
-    float aa = fwidth(bands);
+    float scaled = n * u.lineCount;
+    float bands = fract(scaled) - 0.5;
+    float aa = fwidth(scaled);
 
     float core = 1.0 - smoothstep(u.thickness * aa,
                                   (u.thickness + u.softness) * aa,
