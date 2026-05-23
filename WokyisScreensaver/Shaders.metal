@@ -1,6 +1,11 @@
 #include <metal_stdlib>
 using namespace metal;
 
+struct Uniforms {
+    float2 viewportSize;
+    float  time;
+};
+
 struct VSOut {
     float4 position [[position]];
     float2 uv;
@@ -18,6 +23,8 @@ vertex VSOut vs_fullscreen(uint vid [[vertex_id]]) {
     return out;
 }
 
-fragment float4 fs_main(VSOut in [[stage_in]]) {
-    return float4(in.uv.x, in.uv.y, 0.0, 1.0);
+fragment float4 fs_main(VSOut in [[stage_in]],
+                        constant Uniforms &u [[buffer(0)]]) {
+    float pulse = 0.5 + 0.5 * sin(u.time);
+    return float4(in.uv.x * pulse, in.uv.y * pulse, 0.0, 1.0);
 }
