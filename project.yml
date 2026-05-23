@@ -24,6 +24,7 @@ targets:
         NSPrincipalClass: NSApplication
         NSMainStoryboardFile: ""
         NSHighResolutionCapable: true
+        CFBundleIconName: AppIcon
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: ai.unreallabs.wokyis-screensaver
@@ -33,3 +34,4 @@ targets:
         ENABLE_APP_SANDBOX: NO
         GENERATE_INFOPLIST_FILE: NO
         MTL_FAST_MATH: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
