@@ -23,6 +23,7 @@ targets:
         NSHumanReadableCopyright: ""
         NSPrincipalClass: NSApplication
         NSMainStoryboardFile: ""
+        NSHighResolutionCapable: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: ai.unreallabs.wokyis-screensaver
