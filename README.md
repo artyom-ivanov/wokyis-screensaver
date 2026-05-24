@@ -4,6 +4,13 @@ A minimalist macOS screensaver-style app that renders smoothly animated white to
 
 ![demo](docs/demo.gif)
 
+## Screensavers
+
+| Topographic | Game of Life | Flip Clock |
+| :---: | :---: | :---: |
+| ![Topographic](docs/topographic.png) | ![Game of Life](docs/game-of-life.png) | ![Flip Clock](docs/flip-clock.png) |
+| Flowing white contour lines over a 3D simplex-noise field. | GPU cellular automaton with two-colour teams, fading trails and a palette picker. | Locale-aware split-flap clock with light/dark theme, font and seconds toggles. |
+
 ## Install
 
 Download the latest `.dmg` from the [Releases](../../releases) page, open it, drag the app into `/Applications`, and launch. The app is signed and notarized — it runs without any Gatekeeper warnings.
