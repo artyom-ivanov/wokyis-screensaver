@@ -2,6 +2,8 @@
 
 Minimalist macOS screensaver-style app with three switchable visuals. Dependency-free, single binary.
 
+![demo](docs/demo.gif)
+
 | Topographic | Game of Life | Flip Clock |
 | :---: | :---: | :---: |
 | ![Topographic](docs/topographic.png) | ![Game of Life](docs/game-of-life.png) | ![Flip Clock](docs/flip-clock.png) |
