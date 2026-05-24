@@ -10,9 +10,12 @@ private final class HoverState {
 }
 
 struct ContentView: View {
-    @AppStorage("selectedScreensaver") private var selectionRaw: String = ScreensaverID.noise.rawValue
-    @AppStorage("paletteID")           private var paletteRaw:   String = Palette.default.id
-    @State private var noiseSettings = Settings()
+    @AppStorage("selectedScreensaver") private var selectionRaw:     String = ScreensaverID.noise.rawValue
+    @AppStorage("paletteID")           private var paletteRaw:       String = Palette.default.id
+    @AppStorage("flipClockTheme")      private var flipClockThemeRaw: String = FlipClockTheme.default.id
+    @AppStorage("flipClockFont")       private var flipClockFontRaw:  String = FlipClockFont.default.id
+    @AppStorage("flipClockShowSeconds") private var flipClockShowSeconds: Bool = false
+    @State private var noiseSettings = TopographicSettings()
     @State private var golReseedTick: Int = 0
     @State private var pickerVisible: Bool = false
     @State private var hoverState = HoverState()
@@ -31,6 +34,29 @@ struct ContentView: View {
         )
     }
 
+    private var flipClockTheme: Binding<FlipClockTheme> {
+        Binding(
+            get: { FlipClockTheme.by(id: flipClockThemeRaw) },
+            set: { flipClockThemeRaw = $0.id }
+        )
+    }
+
+    private var flipClockFont: Binding<FlipClockFont> {
+        Binding(
+            get: { FlipClockFont.by(id: flipClockFontRaw) },
+            set: { flipClockFontRaw = $0.id }
+        )
+    }
+
+    /// Whether the screensaver currently shows a light background, so the
+    /// hover-pickers can switch to dark-on-light styling for legibility.
+    private var pickerOnLightBackground: Bool {
+        switch selection.wrappedValue {
+        case .flipClock: return flipClockTheme.wrappedValue.id == FlipClockTheme.light.id
+        default:         return false
+        }
+    }
+
     var body: some View {
         ZStack(alignment: .top) {
             screensaverView(for: selection.wrappedValue)
@@ -44,15 +70,36 @@ struct ContentView: View {
 
             VStack {
                 if pickerVisible {
-                    ScreensaverPicker(selection: selection)
-                        .padding(.top, 20)
-                        .transition(.opacity)
+                    ScreensaverPicker(
+                        selection: selection,
+                        onLightBackground: pickerOnLightBackground
+                    )
+                    .padding(.top, 20)
+                    .transition(.opacity)
                 }
                 Spacer()
                 if pickerVisible && selection.wrappedValue == .gameOfLife {
                     PalettePicker(selection: palette)
                         .padding(.bottom, 20)
                         .transition(.opacity)
+                }
+                if pickerVisible && selection.wrappedValue == .flipClock {
+                    HStack(spacing: 8) {
+                        FlipClockSecondsPicker(
+                            showSeconds: $flipClockShowSeconds,
+                            onLightBackground: pickerOnLightBackground
+                        )
+                        FlipClockFontPicker(
+                            selection: flipClockFont,
+                            onLightBackground: pickerOnLightBackground
+                        )
+                        FlipClockThemePicker(
+                            selection: flipClockTheme,
+                            onLightBackground: pickerOnLightBackground
+                        )
+                    }
+                    .padding(.bottom, 20)
+                    .transition(.opacity)
                 }
             }
             .allowsHitTesting(pickerVisible)
@@ -73,9 +120,15 @@ struct ContentView: View {
     private func screensaverView(for id: ScreensaverID) -> some View {
         switch id {
         case .noise:
-            MetalView(settings: noiseSettings)
+            TopographicView(settings: noiseSettings)
         case .gameOfLife:
             GameOfLifeView(palette: palette.wrappedValue, reseedTick: golReseedTick)
+        case .flipClock:
+            FlipClockView(
+                theme: flipClockTheme.wrappedValue,
+                font: flipClockFont.wrappedValue,
+                showSeconds: flipClockShowSeconds
+            )
         }
     }
 

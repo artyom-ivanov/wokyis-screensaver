@@ -1,7 +1,7 @@
 import SwiftUI
 
 @Observable
-final class Settings {
+final class TopographicSettings {
     var scale: Float = 2.24
     var lineCount: Float = 2.7
     var speed: Float = 0.033

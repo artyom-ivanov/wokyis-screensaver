@@ -13,14 +13,14 @@ private struct Uniforms {
     var haloBrightness: Float
 }
 
-final class Renderer: NSObject, MTKViewDelegate {
+final class TopographicRenderer: NSObject, MTKViewDelegate {
     let device: MTLDevice
     private let commandQueue: MTLCommandQueue
     private let pipelineState: MTLRenderPipelineState
     private let startTime: CFTimeInterval = CACurrentMediaTime()
-    private let settings: Settings
+    private let settings: TopographicSettings
 
-    init(device: MTLDevice, pixelFormat: MTLPixelFormat, settings: Settings) {
+    init(device: MTLDevice, pixelFormat: MTLPixelFormat, settings: TopographicSettings) {
         self.settings = settings
         guard let queue = device.makeCommandQueue() else {
             fatalError("Failed to create Metal command queue")

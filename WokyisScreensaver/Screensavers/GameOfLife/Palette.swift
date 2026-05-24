@@ -26,6 +26,9 @@ struct Palette: Identifiable, Equatable {
         Palette(id: "spring_lav",
                 colorA: rgb(0x10, 0xE2, 0x5C),
                 colorB: rgb(0xD0, 0x92, 0xFF)),
+        Palette(id: "mono",
+                colorA: rgb(0xF0, 0xF0, 0xF0),
+                colorB: rgb(0x70, 0x70, 0x70)),
     ]
 
     static let `default`: Palette = all[0]

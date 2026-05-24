@@ -1,14 +1,14 @@
 import SwiftUI
 import MetalKit
 
-struct MetalView: NSViewRepresentable {
-    let settings: Settings
+struct TopographicView: NSViewRepresentable {
+    let settings: TopographicSettings
 
-    func makeCoordinator() -> Renderer {
+    func makeCoordinator() -> TopographicRenderer {
         guard let device = MTLCreateSystemDefaultDevice() else {
             fatalError("Metal is not supported on this device")
         }
-        return Renderer(device: device, pixelFormat: .bgra8Unorm, settings: settings)
+        return TopographicRenderer(device: device, pixelFormat: .bgra8Unorm, settings: settings)
     }
 
     func makeNSView(context: Context) -> MTKView {
@@ -27,7 +27,7 @@ struct MetalView: NSViewRepresentable {
 
     func updateNSView(_ nsView: MTKView, context: Context) {}
 
-    static func dismantleNSView(_ nsView: MTKView, coordinator: Renderer) {
+    static func dismantleNSView(_ nsView: MTKView, coordinator: TopographicRenderer) {
         nsView.releaseDrawables()
         nsView.delegate = nil
     }
