@@ -8,7 +8,7 @@ struct CalendarHeaderView: View {
 
     private var dateFormatter: DateFormatter {
         let f = DateFormatter()
-        f.dateFormat = "EEE d MMM"
+        f.dateFormat = "EEEE d MMMM"
         return f
     }
 
