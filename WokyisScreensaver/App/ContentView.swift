@@ -15,6 +15,9 @@ struct ContentView: View {
     @AppStorage("flipClockTheme")      private var flipClockThemeRaw: String = FlipClockTheme.default.id
     @AppStorage("flipClockFont")       private var flipClockFontRaw:  String = FlipClockFont.default.id
     @AppStorage("flipClockShowSeconds") private var flipClockShowSeconds: Bool = false
+    @AppStorage("calendarTheme")          private var calendarThemeRaw:  String = CalendarTheme.default.id
+    @AppStorage("calendarSelectedIDs")    private var calendarIDsRaw:    String = ""
+    @StateObject private var calendarStore: CalendarStore = CalendarStore(selectedCalendarIDs: [])
     @State private var noiseSettings = TopographicSettings()
     @State private var golReseedTick: Int = 0
     @State private var pickerVisible: Bool = false
@@ -48,11 +51,29 @@ struct ContentView: View {
         )
     }
 
+    private var calendarTheme: Binding<CalendarTheme> {
+        Binding(
+            get: { CalendarTheme.by(id: self.calendarThemeRaw) },
+            set: { self.calendarThemeRaw = $0.id }
+        )
+    }
+
+    private var calendarSelectedIDs: Binding<Set<String>> {
+        Binding(
+            get: {
+                let ids = self.calendarIDsRaw.split(separator: ",").map(String.init)
+                return Set(ids.filter { !$0.isEmpty })
+            },
+            set: { self.calendarIDsRaw = $0.sorted().joined(separator: ",") }
+        )
+    }
+
     /// Whether the screensaver currently shows a light background, so the
     /// hover-pickers can switch to dark-on-light styling for legibility.
     private var pickerOnLightBackground: Bool {
         switch selection.wrappedValue {
         case .flipClock: return flipClockTheme.wrappedValue.id == FlipClockTheme.light.id
+        case .calendar:  return calendarTheme.wrappedValue.id == CalendarTheme.light.id
         default:         return false
         }
     }
@@ -101,10 +122,44 @@ struct ContentView: View {
                     .padding(.bottom, 20)
                     .transition(.opacity)
                 }
+                if pickerVisible && selection.wrappedValue == .calendar {
+                    HStack(spacing: 8) {
+                        Button {
+                            calendarStore.refresh()
+                        } label: {
+                            Image(systemName: "arrow.clockwise")
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundStyle(pickerOnLightBackground ? Color.black : Color.white)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .background(.ultraThinMaterial, in: Capsule())
+                        }
+                        .buttonStyle(.plain)
+
+                        if !calendarStore.availableCalendars.isEmpty {
+                            CalendarPicker(
+                                calendars: calendarStore.availableCalendars,
+                                selectedIDs: calendarSelectedIDs,
+                                onLightBackground: pickerOnLightBackground
+                            )
+                        }
+
+                        CalendarThemePicker(
+                            selection: calendarTheme,
+                            onLightBackground: pickerOnLightBackground
+                        )
+                    }
+                    .padding(.bottom, 20)
+                    .transition(.opacity)
+                }
             }
             .allowsHitTesting(pickerVisible)
         }
         .animation(.easeInOut(duration: 0.18), value: pickerVisible)
+        .onChange(of: calendarIDsRaw) { _, newValue in
+            let ids = newValue.split(separator: ",").map(String.init)
+            calendarStore.selectedCalendarIDs = Set(ids.filter { !$0.isEmpty })
+        }
         .onContinuousHover { phase in
             switch phase {
             case .active: bumpHover()
@@ -129,6 +184,8 @@ struct ContentView: View {
                 font: flipClockFont.wrappedValue,
                 showSeconds: flipClockShowSeconds
             )
+        case .calendar:
+            CalendarView(store: calendarStore, theme: calendarTheme.wrappedValue)
         }
     }
 
