@@ -2,6 +2,7 @@ import SwiftUI
 
 struct CalendarHeaderView: View {
     let theme: CalendarTheme
+    @AppStorage("calendarFontScale") private var fontScale: Double = 1.0
     @State private var now = Date()
 
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -24,18 +25,18 @@ struct CalendarHeaderView: View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 2) {
                 Text("TODAY")
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.system(size: 13 * fontScale, weight: .semibold))
                     .tracking(1.5)
                     .foregroundStyle(theme.secondaryText)
                 Text(dateFormatter.string(from: now))
-                    .font(.system(size: 40, weight: .semibold))
+                    .font(.system(size: 40 * fontScale, weight: .semibold))
                     .foregroundStyle(theme.primaryText)
             }
 
             Spacer()
 
             Text(timeFormatter.string(from: now))
-                .font(.system(size: 80, weight: .bold))
+                .font(.system(size: 80 * fontScale, weight: .bold))
                 .foregroundStyle(theme.primaryText)
                 .monospacedDigit()
         }

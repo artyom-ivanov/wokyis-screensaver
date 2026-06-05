@@ -4,6 +4,7 @@ import EventKit
 struct EventCardView: View {
     let event: EKEvent
     let theme: CalendarTheme
+    @AppStorage("calendarFontScale") private var fontScale: Double = 1.0
 
     private var timeFormatter: DateFormatter {
         let f = DateFormatter()
@@ -19,18 +20,18 @@ struct EventCardView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(event.title ?? "")
-                .font(.system(size: 22, weight: .semibold))
+                .font(.system(size: 22 * fontScale, weight: .semibold))
                 .foregroundStyle(theme.primaryText)
                 .lineLimit(2)
 
             HStack(spacing: 10) {
                 Text("\(timeFormatter.string(from: event.startDate)) – \(timeFormatter.string(from: event.endDate))")
-                    .font(.system(size: 17))
+                    .font(.system(size: 17 * fontScale))
                     .foregroundStyle(theme.secondaryText)
 
                 if let loc = event.location, !loc.isEmpty {
                     Text(loc)
-                        .font(.system(size: 17))
+                        .font(.system(size: 17 * fontScale))
                         .foregroundStyle(theme.secondaryText)
                         .lineLimit(1)
                 }
@@ -38,9 +39,9 @@ struct EventCardView: View {
                 if isMaybe {
                     HStack(spacing: 4) {
                         Image(systemName: "questionmark.circle")
-                            .font(.system(size: 13))
+                            .font(.system(size: 13 * fontScale))
                         Text("Maybe")
-                            .font(.system(size: 15))
+                            .font(.system(size: 15 * fontScale))
                     }
                     .foregroundStyle(theme.secondaryText)
                 }

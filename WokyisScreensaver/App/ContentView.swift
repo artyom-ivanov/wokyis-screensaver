@@ -17,6 +17,7 @@ struct ContentView: View {
     @AppStorage("flipClockShowSeconds") private var flipClockShowSeconds: Bool = false
     @AppStorage("calendarTheme")          private var calendarThemeRaw:  String = CalendarTheme.default.id
     @AppStorage("calendarSelectedIDs")    private var calendarIDsRaw:    String = ""
+    @AppStorage("calendarFontScale")      private var calendarFontScale: Double = 1.0
     @StateObject private var calendarStore: CalendarStore = CalendarStore(selectedCalendarIDs: [])
     @State private var noiseSettings = TopographicSettings()
     @State private var golReseedTick: Int = 0
@@ -135,6 +136,24 @@ struct ContentView: View {
                                 .background(.ultraThinMaterial, in: Capsule())
                         }
                         .buttonStyle(.plain)
+
+                        HStack(spacing: 8) {
+                            Image(systemName: "textformat.size.smaller")
+                                .font(.system(size: 12))
+                                .foregroundStyle(pickerOnLightBackground ? Color.black : Color.white)
+                            Slider(value: $calendarFontScale, in: 0.6...1.6, step: 0.05)
+                                .frame(width: 120)
+                                .tint(pickerOnLightBackground ? Color.black : Color.white)
+                            Image(systemName: "textformat.size.larger")
+                                .font(.system(size: 12))
+                                .foregroundStyle(pickerOnLightBackground ? Color.black : Color.white)
+                            Text(String(format: "×%.2f", calendarFontScale))
+                                .font(.system(size: 11, weight: .medium).monospacedDigit())
+                                .foregroundStyle(pickerOnLightBackground ? Color.black.opacity(0.6) : Color.white.opacity(0.6))
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(.ultraThinMaterial, in: Capsule())
 
                         CalendarThemePicker(
                             selection: calendarTheme,
