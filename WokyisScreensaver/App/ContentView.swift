@@ -136,14 +136,6 @@ struct ContentView: View {
                         }
                         .buttonStyle(.plain)
 
-                        if !calendarStore.availableCalendars.isEmpty {
-                            CalendarPicker(
-                                calendars: calendarStore.availableCalendars,
-                                selectedIDs: calendarSelectedIDs,
-                                onLightBackground: pickerOnLightBackground
-                            )
-                        }
-
                         CalendarThemePicker(
                             selection: calendarTheme,
                             onLightBackground: pickerOnLightBackground
@@ -154,6 +146,17 @@ struct ContentView: View {
                 }
             }
             .allowsHitTesting(pickerVisible)
+
+            if pickerVisible && selection.wrappedValue == .calendar && !calendarStore.availableCalendars.isEmpty {
+                CalendarPicker(
+                    calendars: calendarStore.availableCalendars,
+                    selectedIDs: calendarSelectedIDs,
+                    onLightBackground: pickerOnLightBackground
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .transition(.opacity)
+                .allowsHitTesting(true)
+            }
         }
         .animation(.easeInOut(duration: 0.18), value: pickerVisible)
         .onChange(of: calendarIDsRaw) { _, newValue in

@@ -23,18 +23,18 @@ struct CalendarHeaderView: View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 2) {
                 Text("TODAY")
-                    .font(.system(size: 11, weight: .semibold))
+                    .font(.system(size: 13, weight: .semibold))
                     .tracking(1.5)
                     .foregroundStyle(theme.secondaryText)
                 Text(dateFormatter.string(from: now))
-                    .font(.system(size: 22, weight: .semibold))
+                    .font(.system(size: 30, weight: .semibold))
                     .foregroundStyle(theme.primaryText)
             }
 
             Spacer()
 
             Text(timeFormatter.string(from: now))
-                .font(.system(size: 52, weight: .bold))
+                .font(.system(size: 68, weight: .bold))
                 .foregroundStyle(theme.primaryText)
                 .monospacedDigit()
         }

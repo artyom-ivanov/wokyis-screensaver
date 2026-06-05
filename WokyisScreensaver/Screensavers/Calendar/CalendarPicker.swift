@@ -7,10 +7,11 @@ struct CalendarPicker: View {
     var onLightBackground: Bool = false
 
     private var foreground: Color { onLightBackground ? .black : .white }
+    private var secondaryForeground: Color { onLightBackground ? Color.black.opacity(0.5) : Color.white.opacity(0.5) }
     private func isSelected(_ cal: EKCalendar) -> Bool { selectedIDs.contains(cal.calendarIdentifier) }
 
     var body: some View {
-        HStack(spacing: 8) {
+        VStack(alignment: .leading, spacing: 0) {
             ForEach(calendars, id: \.calendarIdentifier) { cal in
                 Button {
                     if isSelected(cal) {
@@ -19,34 +20,36 @@ struct CalendarPicker: View {
                         selectedIDs.insert(cal.calendarIdentifier)
                     }
                 } label: {
-                    HStack(spacing: 5) {
+                    HStack(spacing: 12) {
                         Circle()
                             .fill(Color(cgColor: cal.cgColor))
-                            .frame(width: 8, height: 8)
+                            .frame(width: 11, height: 11)
+
                         Text(cal.title)
-                            .font(.system(size: 13, weight: .medium))
+                            .font(.system(size: 15, weight: .medium))
                             .foregroundStyle(foreground)
+
+                        Spacer()
+
+                        if isSelected(cal) {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundStyle(foreground)
+                        }
                     }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background(
-                        Capsule().fill(
-                            isSelected(cal)
-                                ? (onLightBackground ? Color.black.opacity(0.18) : Color.white.opacity(0.22))
-                                : (onLightBackground ? Color.black.opacity(0.06) : Color.white.opacity(0.08))
-                        )
-                    )
-                    .overlay(
-                        Capsule().stroke(
-                            isSelected(cal) ? foreground : Color.clear,
-                            lineWidth: 1.5
-                        )
-                    )
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 12)
                 }
                 .buttonStyle(.plain)
+
+                if cal.calendarIdentifier != calendars.last?.calendarIdentifier {
+                    Divider()
+                        .background(onLightBackground ? Color.black.opacity(0.08) : Color.white.opacity(0.08))
+                        .padding(.horizontal, 18)
+                }
             }
         }
-        .padding(8)
-        .background(.ultraThinMaterial, in: Capsule())
+        .frame(width: 260)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14))
     }
 }
