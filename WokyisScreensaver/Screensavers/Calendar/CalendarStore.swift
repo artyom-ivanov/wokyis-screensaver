@@ -1,4 +1,5 @@
 import Foundation
+import AppKit
 import EventKit
 import Combine
 
@@ -106,7 +107,10 @@ final class CalendarStore: ObservableObject {
 
     private func startTimer() {
         refreshTimer = Timer.scheduledTimer(withTimeInterval: 300, repeats: true) { [weak self] _ in
-            self?.refresh()
+            guard let self else { return }
+            Task { @MainActor in
+                self.refresh()
+            }
         }
     }
 }
