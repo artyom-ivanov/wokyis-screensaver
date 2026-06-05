@@ -3,7 +3,7 @@ import EventKit
 
 private let hourHeight: CGFloat = 110
 private let timeColumnWidth: CGFloat = 72
-private let eventSpacing: CGFloat = 5
+private let eventSpacing: CGFloat = 10
 
 private struct PositionedEvent {
     let event: EKEvent

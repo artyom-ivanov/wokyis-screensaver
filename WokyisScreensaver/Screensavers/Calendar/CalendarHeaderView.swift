@@ -8,7 +8,8 @@ struct CalendarHeaderView: View {
 
     private var dateFormatter: DateFormatter {
         let f = DateFormatter()
-        f.dateFormat = "EEEE d MMMM"
+        f.dateStyle = .long
+        f.timeStyle = .none
         return f
     }
 
@@ -27,14 +28,14 @@ struct CalendarHeaderView: View {
                     .tracking(1.5)
                     .foregroundStyle(theme.secondaryText)
                 Text(dateFormatter.string(from: now))
-                    .font(.system(size: 30, weight: .semibold))
+                    .font(.system(size: 40, weight: .semibold))
                     .foregroundStyle(theme.primaryText)
             }
 
             Spacer()
 
             Text(timeFormatter.string(from: now))
-                .font(.system(size: 68, weight: .bold))
+                .font(.system(size: 80, weight: .bold))
                 .foregroundStyle(theme.primaryText)
                 .monospacedDigit()
         }

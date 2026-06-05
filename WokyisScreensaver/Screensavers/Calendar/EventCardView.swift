@@ -19,18 +19,18 @@ struct EventCardView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(event.title ?? "")
-                .font(.system(size: 19, weight: .semibold))
+                .font(.system(size: 22, weight: .semibold))
                 .foregroundStyle(theme.primaryText)
                 .lineLimit(2)
 
             HStack(spacing: 10) {
                 Text("\(timeFormatter.string(from: event.startDate)) – \(timeFormatter.string(from: event.endDate))")
-                    .font(.system(size: 15))
+                    .font(.system(size: 17))
                     .foregroundStyle(theme.secondaryText)
 
                 if let loc = event.location, !loc.isEmpty {
                     Text(loc)
-                        .font(.system(size: 15))
+                        .font(.system(size: 17))
                         .foregroundStyle(theme.secondaryText)
                         .lineLimit(1)
                 }
