@@ -1,9 +1,10 @@
 import Foundation
 
 enum ScreensaverID: String, CaseIterable, Identifiable {
-    case noise = "noise"
+    case noise    = "noise"
     case gameOfLife = "game_of_life"
-    case flipClock = "flip_clock"
+    case flipClock  = "flip_clock"
+    case calendar   = "calendar"
 
     var id: String { rawValue }
 
@@ -12,6 +13,7 @@ enum ScreensaverID: String, CaseIterable, Identifiable {
         case .noise:      return "Topographic"
         case .gameOfLife: return "Game of Life"
         case .flipClock:  return "Flip Clock"
+        case .calendar:   return "Calendar"
         }
     }
 }
