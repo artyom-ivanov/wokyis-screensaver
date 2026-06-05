@@ -4,7 +4,7 @@ import EventKit
 private let hourHeight: CGFloat = 80
 private let timeColumnWidth: CGFloat = 60
 
-struct TimelineView: View {
+struct AgendaTimelineView: View {
     let events: [EKEvent]
     let theme: CalendarTheme
 
@@ -60,17 +60,11 @@ struct TimelineView: View {
                     }
 
                     // Events
-                    ForEach(events, id: \.eventIdentifier) { event in
-                        VStack(alignment: .leading, spacing: 2) {
-                            if event.travelTime > 0 {
-                                TravelTimeBlockView(travelTime: event.travelTime, theme: theme)
-                            }
-                            EventCardView(event: event, theme: theme)
-                        }
-                        .padding(.leading, timeColumnWidth + 8)
-                        .padding(.trailing, 16)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .offset(y: yOffset(for: event.startDate))
+                    ForEach(Array(events.enumerated()), id: \.offset) { _, event in
+                        EventCardView(event: event, theme: theme)
+                            .padding(.leading, timeColumnWidth + 8)
+                            .padding(.trailing, 16)
+                            .offset(y: yOffset(for: event.startDate))
                     }
 
                     // Current time indicator

@@ -34,7 +34,7 @@ struct CalendarView: View {
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                     } else {
-                        TimelineView(events: store.events, theme: theme)
+                        AgendaTimelineView(events: store.events, theme: theme)
                             .padding(.horizontal, 16)
                             .padding(.top, 8)
                     }

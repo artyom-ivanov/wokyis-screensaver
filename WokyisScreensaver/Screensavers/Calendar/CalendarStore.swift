@@ -20,8 +20,8 @@ final class CalendarStore: ObservableObject {
 
     private var _selectedCalendarIDs: Set<String> = []
     private let store = EKEventStore()
-    private var refreshTimer: Timer?
-    private var notificationObserver: Any?
+    nonisolated(unsafe) private var refreshTimer: Timer?
+    nonisolated(unsafe) private var notificationObserver: Any?
 
     init(selectedCalendarIDs: Set<String>) {
         self._selectedCalendarIDs = selectedCalendarIDs
