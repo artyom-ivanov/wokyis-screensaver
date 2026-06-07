@@ -21,12 +21,16 @@ struct CalendarSetupView: View {
                 Divider()
                     .background(theme.secondaryText.opacity(0.2))
 
-                CalendarPicker(
-                    calendars: calendars,
-                    selectedIDs: $selectedIDs,
-                    onLightBackground: theme.id == CalendarTheme.light.id,
-                    showBackground: false
-                )
+                ScrollView {
+                    CalendarPicker(
+                        calendars: calendars,
+                        selectedIDs: $selectedIDs,
+                        onLightBackground: theme.id == CalendarTheme.light.id,
+                        showBackground: false
+                    )
+                }
+                .frame(maxHeight: 320)
+
                 Divider()
                     .background(theme.secondaryText.opacity(0.2))
 

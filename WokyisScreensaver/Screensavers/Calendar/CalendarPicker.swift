@@ -22,25 +22,20 @@ struct CalendarPicker: View {
                     }
                 } label: {
                     HStack(spacing: 12) {
-                        Circle()
-                            .fill(Color(cgColor: cal.cgColor))
-                            .frame(width: 11, height: 11)
+                        Image(systemName: isSelected(cal) ? "checkmark.circle.fill" : "circle")
+                            .font(.system(size: 17))
+                            .foregroundStyle(isSelected(cal) ? Color(cgColor: cal.cgColor) : foreground.opacity(0.4))
 
                         Text(cal.title)
                             .font(.system(size: 15, weight: .medium))
                             .foregroundStyle(foreground)
 
                         Spacer()
-
-                        if isSelected(cal) {
-                            Image(systemName: "checkmark")
-                                .font(.system(size: 13, weight: .semibold))
-                                .foregroundStyle(foreground)
-                        }
                     }
                     .padding(.horizontal, 18)
                     .padding(.vertical, 12)
                     .frame(maxWidth: .infinity)
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
 
