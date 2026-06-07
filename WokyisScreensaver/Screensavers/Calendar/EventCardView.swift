@@ -5,7 +5,6 @@ struct EventCardView: View {
     let event: EKEvent
     let theme: CalendarTheme
     var isOverlapping: Bool = false
-    @AppStorage("calendarFontScale") private var fontScale: Double = 1.0
 
     private var isMaybe: Bool {
         event.attendees?.first(where: { $0.isCurrentUser })?.participantStatus == .tentative
@@ -22,7 +21,7 @@ struct EventCardView: View {
 
     private var titleView: some View {
         Text(event.title ?? "")
-            .font(.system(size: 64 * fontScale, weight: .semibold))
+            .font(.system(size: 64, weight: .semibold))
             .foregroundStyle(theme.primaryText)
             .lineLimit(2)
             .minimumScaleFactor(0.4)
@@ -32,14 +31,14 @@ struct EventCardView: View {
     private var metaView: some View {
         HStack(spacing: 8) {
             Text(durationLabel)
-                .font(.system(size: 32 * fontScale))
+                .font(.system(size: 32))
                 .foregroundStyle(theme.secondaryText)
             if isMaybe {
                 HStack(spacing: 4) {
                     Image(systemName: "questionmark.circle")
-                        .font(.system(size: 24 * fontScale))
+                        .font(.system(size: 24))
                     Text("Maybe")
-                        .font(.system(size: 28 * fontScale))
+                        .font(.system(size: 28))
                 }
                 .foregroundStyle(theme.secondaryText)
             }

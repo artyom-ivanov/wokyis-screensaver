@@ -2,7 +2,7 @@ import SwiftUI
 import EventKit
 
 private let hourHeight: CGFloat = 220
-private let timeColumnWidth: CGFloat = 80
+private let timeColumnWidth: CGFloat = 100
 private let eventSpacing: CGFloat = 10
 
 private struct PositionedEvent {
@@ -84,6 +84,7 @@ struct AgendaTimelineView: View {
                                 HStack(alignment: .top, spacing: 0) {
                                     Text(hourLabel(hour))
                                         .font(.system(size: 32))
+                                        .lineLimit(1)
                                         .foregroundStyle(theme.secondaryText)
                                         .frame(width: timeColumnWidth, alignment: .trailing)
                                         .padding(.trailing, 20)
@@ -101,7 +102,7 @@ struct AgendaTimelineView: View {
                         // Events
                         ForEach(Array(positioned.enumerated()), id: \.offset) { _, pe in
                             let colWidth = eventsAreaWidth / CGFloat(pe.totalColumns)
-                            let xOffset = timeColumnWidth + 8 + colWidth * CGFloat(pe.column)
+                            let xOffset = (timeColumnWidth + 20) + 8 + colWidth * CGFloat(pe.column)
                             EventCardView(event: pe.event, theme: theme, isOverlapping: pe.totalColumns > 1)
                                 .frame(width: colWidth - eventSpacing, height: eventHeight(for: pe.event))
                                 .offset(x: xOffset, y: yOffset(for: pe.event.startDate))
@@ -109,11 +110,10 @@ struct AgendaTimelineView: View {
 
                         // Current time indicator
                         HStack(spacing: 0) {
-                            Text(currentTimeLabel())
-                                .font(.system(size: 13, weight: .semibold))
-                                .foregroundStyle(theme.timeIndicator)
-                                .frame(width: timeColumnWidth, alignment: .trailing)
-                                .padding(.trailing, 4)
+                            Circle()
+                                .fill(theme.timeIndicator)
+                                .frame(width: 20, height: 20)
+                                .padding(.leading, 8)
 
                             Rectangle()
                                 .fill(theme.timeIndicator)
@@ -146,7 +146,8 @@ struct AgendaTimelineView: View {
     private func hourLabel(_ hour: Int) -> String {
         let d = Calendar.current.date(bySettingHour: hour, minute: 0, second: 0, of: Date()) ?? Date()
         let f = DateFormatter()
-        f.dateFormat = DateFormatter.dateFormat(fromTemplate: "jmm", options: 0, locale: Locale.current)
+        let uses24h = DateFormatter.dateFormat(fromTemplate: "j", options: 0, locale: Locale.current)?.contains("H") == true
+        f.dateFormat = DateFormatter.dateFormat(fromTemplate: uses24h ? "Hmm" : "j", options: 0, locale: Locale.current)
         return f.string(from: d)
     }
 
