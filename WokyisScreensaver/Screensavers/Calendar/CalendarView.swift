@@ -5,6 +5,7 @@ struct CalendarView: View {
     @ObservedObject var store: CalendarStore
     let theme: CalendarTheme
     var scrollTrigger: UUID = UUID()
+    var showAccent: Bool = true
     @Binding var showingSetup: Bool
     @Binding var selectedCalendarIDs: Set<String>
 
@@ -49,7 +50,7 @@ struct CalendarView: View {
                             }
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                         } else if !timed.isEmpty {
-                            AgendaTimelineView(events: timed, theme: theme, scrollTrigger: scrollTrigger)
+                            AgendaTimelineView(events: timed, theme: theme, scrollTrigger: scrollTrigger, showAccent: showAccent)
                                 .padding(.horizontal, 16)
                                 .padding(.top, 8)
                         }

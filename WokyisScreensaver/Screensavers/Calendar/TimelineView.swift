@@ -49,6 +49,7 @@ struct AgendaTimelineView: View {
     let events: [EKEvent]
     let theme: CalendarTheme
     var scrollTrigger: UUID = UUID()
+    var showAccent: Bool = true
 
     @State private var now = Date()
     @State private var lastManualScroll: Date = .distantPast
@@ -118,7 +119,7 @@ struct AgendaTimelineView: View {
                             let colWidth = eventsAreaWidth / CGFloat(pe.totalColumns)
                             let xOffset = (timeColumnWidth + 20) + 8 + colWidth * CGFloat(pe.column)
                             let isPast = pe.event.endDate < now
-                            EventCardView(event: pe.event, theme: theme, isOverlapping: pe.totalColumns > 1)
+                            EventCardView(event: pe.event, theme: theme, isOverlapping: pe.totalColumns > 1, showAccent: showAccent)
                                 .frame(width: colWidth - eventSpacing, height: eventHeight(for: pe.event))
                                 .offset(x: xOffset, y: yOffset(for: pe.event.startDate))
                                 .opacity(isPast ? 0.35 : 1.0)

@@ -5,6 +5,7 @@ struct EventCardView: View {
     let event: EKEvent
     let theme: CalendarTheme
     var isOverlapping: Bool = false
+    var showAccent: Bool = true
 
     private var isMaybe: Bool {
         event.attendees?.first(where: { $0.isCurrentUser })?.participantStatus == .tentative
@@ -46,22 +47,32 @@ struct EventCardView: View {
     }
 
     var body: some View {
-        Group {
-            if isOverlapping {
-                VStack(alignment: .leading, spacing: 4) {
-                    titleView
-                    metaView
-                }
-            } else {
-                HStack(alignment: .top, spacing: 12) {
-                    titleView
-                    metaView
+        HStack(spacing: 0) {
+            if showAccent, let cgColor = event.calendar?.cgColor {
+                Capsule()
+                    .fill(Color(cgColor: cgColor))
+                    .frame(width: 5)
+                    .padding(.leading, 16)
+                    .padding(.vertical, 20)
+            }
+
+            Group {
+                if isOverlapping {
+                    VStack(alignment: .leading, spacing: 4) {
+                        titleView
+                        metaView
+                    }
+                } else {
+                    HStack(alignment: .top, spacing: 12) {
+                        titleView
+                        metaView
+                    }
                 }
             }
+            .padding(.horizontal, 24)
+            .padding(.vertical, 16)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .padding(.horizontal, 28)
-        .padding(.vertical, 16)
         .background(theme.cardFill, in: RoundedRectangle(cornerRadius: 32, style: .continuous))
     }
 }

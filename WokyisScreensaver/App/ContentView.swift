@@ -23,6 +23,7 @@ struct ContentView: View {
     @State private var golReseedTick: Int = 0
     @State private var pickerVisible: Bool = false
     @AppStorage("calendarSetupDone") private var calendarSetupDone: Bool = false
+    @AppStorage("calendarShowAccent") private var calendarShowAccent: Bool = true
     @State private var showingCalendarSetup: Bool = false
     @State private var hoverState = HoverState()
 
@@ -157,6 +158,22 @@ struct ContentView: View {
                         .buttonStyle(.plain)
                         .disabled(showingCalendarSetup)
 
+                        Button {
+                            calendarShowAccent.toggle()
+                        } label: {
+                            HStack(spacing: 6) {
+                                Image(systemName: calendarShowAccent ? "rectangle.leadinghalf.inset.filled" : "rectangle.leadinghalf.inset.filled.arrow.leading")
+                                    .font(.system(size: 13, weight: .medium))
+                                Text("Accent")
+                                    .font(.system(size: 13, weight: .medium))
+                            }
+                            .foregroundStyle(pickerOnLightBackground ? Color.black : Color.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(calendarShowAccent ? AnyShapeStyle(.ultraThinMaterial) : AnyShapeStyle(Color.primary.opacity(0.08)), in: Capsule())
+                        }
+                        .buttonStyle(.plain)
+
                         CalendarThemePicker(
                             selection: calendarTheme,
                             onLightBackground: pickerOnLightBackground
@@ -218,6 +235,7 @@ struct ContentView: View {
                 store: calendarStore,
                 theme: calendarTheme.wrappedValue,
                 scrollTrigger: calendarScrollTrigger,
+                showAccent: calendarShowAccent,
                 showingSetup: $showingCalendarSetup,
                 selectedCalendarIDs: calendarSelectedIDs
             )
