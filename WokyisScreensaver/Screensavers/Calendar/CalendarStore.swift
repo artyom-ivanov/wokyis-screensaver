@@ -71,13 +71,14 @@ final class CalendarStore: ObservableObject {
     private func checkAuthAndLoad() async {
         let status = EKEventStore.authorizationStatus(for: .event)
         switch status {
-        case .fullAccess, .authorized:
-            authStatus = .authorized
-            await reload()
         case .notDetermined:
             authStatus = .notDetermined
-        default:
+        case .denied, .restricted:
             authStatus = .denied
+        default:
+            // .fullAccess, .authorized, .writeOnly, or any future granted state
+            authStatus = .authorized
+            await reload()
         }
     }
 
