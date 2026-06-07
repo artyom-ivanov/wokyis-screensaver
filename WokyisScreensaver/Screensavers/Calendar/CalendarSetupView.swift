@@ -26,8 +26,6 @@ struct CalendarSetupView: View {
                     selectedIDs: $selectedIDs,
                     onLightBackground: theme.id == CalendarTheme.light.id
                 )
-                .frame(width: 320)
-
                 Divider()
                     .background(theme.secondaryText.opacity(0.2))
 
