@@ -76,6 +76,7 @@ private func mockEvent(
 #Preview("Dark", traits: .fixedLayout(width: 1280, height: 720)) {
     let ekStore = EKEventStore()
     let events: [EKEvent] = [
+        mockEvent(ekStore, title: "Morning standup",  startHour: 0.0,  durationMinutes: 30,  location: "Zoom")
         mockEvent(ekStore, title: "Morning standup",  startHour: 9.0,  durationMinutes: 30,  location: "Zoom"),
         mockEvent(ekStore, title: "1:1 with Priya",   startHour: 10.5, durationMinutes: 60,  location: "Room Aster"),
         mockEvent(ekStore, title: "Design review",    startHour: 14.0, durationMinutes: 60,  location: "Room Vega"),

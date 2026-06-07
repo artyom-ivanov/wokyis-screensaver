@@ -88,7 +88,7 @@ struct AgendaTimelineView: View {
                     let positioned = assignColumns(events)
 
                     ZStack(alignment: .topLeading) {
-                        // Hour grid
+                        // Hour grid — rows carry the scroll anchor IDs
                         VStack(spacing: 0) {
                             ForEach(0..<24, id: \.self) { hour in
                                 HStack(alignment: .top, spacing: 0) {
@@ -106,6 +106,7 @@ struct AgendaTimelineView: View {
                                         .frame(maxWidth: .infinity)
                                 }
                                 .frame(height: hourHeight, alignment: .top)
+                                .id("hour_\(hour)")
                             }
                         }
 
@@ -133,15 +134,6 @@ struct AgendaTimelineView: View {
                                 .frame(maxWidth: .infinity)
                         }
                         .offset(y: currentTimeY)
-                        .id("currentTime")
-
-                        // Invisible scroll anchors
-                        ForEach(0..<24, id: \.self) { hour in
-                            Color.clear
-                                .frame(width: 1, height: 1)
-                                .offset(y: CGFloat(hour) * hourHeight)
-                                .id("hour_\(hour)")
-                        }
                     }
                     .frame(width: geo.size.width, height: CGFloat(24) * hourHeight + 40)
                 }
