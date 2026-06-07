@@ -1,8 +1,8 @@
 import SwiftUI
 import EventKit
 
-private let hourHeight: CGFloat = 110
-private let timeColumnWidth: CGFloat = 72
+private let hourHeight: CGFloat = 220
+private let timeColumnWidth: CGFloat = 80
 private let eventSpacing: CGFloat = 10
 
 private struct PositionedEvent {
@@ -83,10 +83,11 @@ struct AgendaTimelineView: View {
                             ForEach(0..<24, id: \.self) { hour in
                                 HStack(alignment: .top, spacing: 0) {
                                     Text(hourLabel(hour))
-                                        .font(.system(size: 13))
+                                        .font(.system(size: 32))
                                         .foregroundStyle(theme.secondaryText)
                                         .frame(width: timeColumnWidth, alignment: .trailing)
-                                        .padding(.trailing, 8)
+                                        .padding(.trailing, 20)
+                                        .offset(y: -18)
 
                                     Rectangle()
                                         .fill(theme.secondaryText.opacity(0.15))
@@ -101,7 +102,7 @@ struct AgendaTimelineView: View {
                         ForEach(Array(positioned.enumerated()), id: \.offset) { _, pe in
                             let colWidth = eventsAreaWidth / CGFloat(pe.totalColumns)
                             let xOffset = timeColumnWidth + 8 + colWidth * CGFloat(pe.column)
-                            EventCardView(event: pe.event, theme: theme)
+                            EventCardView(event: pe.event, theme: theme, isOverlapping: pe.totalColumns > 1)
                                 .frame(width: colWidth - eventSpacing, height: eventHeight(for: pe.event))
                                 .offset(x: xOffset, y: yOffset(for: pe.event.startDate))
                         }
@@ -145,7 +146,7 @@ struct AgendaTimelineView: View {
     private func hourLabel(_ hour: Int) -> String {
         let d = Calendar.current.date(bySettingHour: hour, minute: 0, second: 0, of: Date()) ?? Date()
         let f = DateFormatter()
-        f.dateFormat = DateFormatter.dateFormat(fromTemplate: "j", options: 0, locale: Locale.current)
+        f.dateFormat = DateFormatter.dateFormat(fromTemplate: "jmm", options: 0, locale: Locale.current)
         return f.string(from: d)
     }
 
@@ -156,3 +157,68 @@ struct AgendaTimelineView: View {
         return f.string(from: now)
     }
 }
+
+
+#if DEBUG
+private func mockEvent(
+    _ store: EKEventStore,
+    title: String,
+    startHour: Double,
+    durationMinutes: Int,
+    location: String? = nil
+) -> EKEvent {
+    let e = EKEvent(eventStore: store)
+    e.title = title
+    let today = Calendar.current.startOfDay(for: Date())
+    e.startDate = today.addingTimeInterval(startHour * 3600)
+    e.endDate = e.startDate.addingTimeInterval(TimeInterval(durationMinutes * 60))
+    e.location = location
+    return e
+}
+
+#Preview("Dark", traits: .fixedLayout(width: 1280, height: 720)) {
+    let ekStore = EKEventStore()
+    let events: [EKEvent] = [
+        mockEvent(ekStore, title: "Morning standup",  startHour: 9.0,  durationMinutes: 30,  location: "Zoom"),
+        mockEvent(ekStore, title: "1:1 with Priya",   startHour: 10.5, durationMinutes: 60,  location: "Room Aster"),
+        mockEvent(ekStore, title: "Design review",    startHour: 14.0, durationMinutes: 60,  location: "Room Vega"),
+        mockEvent(ekStore, title: "Lunch with Alex",  startHour: 13.0, durationMinutes: 90,  location: "Café Norte"),
+        mockEvent(ekStore, title: "Team sync",        startHour: 16.0, durationMinutes: 45),
+        mockEvent(ekStore, title: "Deep work",        startHour: 10.5, durationMinutes: 120, location: "Home"),
+    ]
+
+    ZStack {
+        CalendarTheme.dark.background.ignoresSafeArea()
+        VStack(spacing: 0) {
+            CalendarHeaderView(theme: .dark)
+            Divider().background(CalendarTheme.dark.secondaryText.opacity(0.3))
+            AgendaTimelineView(events: events, theme: .dark)
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
+        }
+    }
+}
+
+#Preview("Light", traits: .fixedLayout(width: 1280, height: 720)) {
+    let ekStore = EKEventStore()
+    let events: [EKEvent] = [
+        mockEvent(ekStore, title: "Morning standup",  startHour: 9.0,  durationMinutes: 30,  location: "Zoom"),
+        mockEvent(ekStore, title: "1:1 with Priya",   startHour: 10.5, durationMinutes: 60,  location: "Room Aster"),
+        mockEvent(ekStore, title: "Design review",    startHour: 14.0, durationMinutes: 60,  location: "Room Vega"),
+        mockEvent(ekStore, title: "Lunch with Alex",  startHour: 13.0, durationMinutes: 90,  location: "Café Norte"),
+        mockEvent(ekStore, title: "Team sync",        startHour: 16.0, durationMinutes: 45),
+        mockEvent(ekStore, title: "Deep work",        startHour: 10.5, durationMinutes: 120, location: "Home"),
+    ]
+
+    ZStack {
+        CalendarTheme.light.background.ignoresSafeArea()
+        VStack(spacing: 0) {
+            CalendarHeaderView(theme: .light)
+            Divider().background(CalendarTheme.light.secondaryText.opacity(0.3))
+            AgendaTimelineView(events: events, theme: .light)
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
+        }
+    }
+}
+#endif
