@@ -155,6 +155,7 @@ struct ContentView: View {
                             .background(.ultraThinMaterial, in: Capsule())
                         }
                         .buttonStyle(.plain)
+                        .disabled(showingCalendarSetup)
 
                         CalendarThemePicker(
                             selection: calendarTheme,
@@ -191,7 +192,12 @@ struct ContentView: View {
                 if pickerVisible { pickerVisible = false }
             }
         }
-        .onAppear { installKeyMonitor() }
+        .onAppear {
+            installKeyMonitor()
+            if calendarStore.authStatus == .authorized && !calendarSetupDone {
+                showingCalendarSetup = true
+            }
+        }
     }
 
     @ViewBuilder
