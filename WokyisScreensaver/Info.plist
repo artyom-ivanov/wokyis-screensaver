@@ -24,14 +24,14 @@
 	<string>1</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.graphics-design</string>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>Wokyis uses your calendar to display today's agenda on screen.</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>NSHumanReadableCopyright</key>
 	<string></string>
 	<key>NSMainStoryboardFile</key>
 	<string></string>
-	<key>NSCalendarsFullAccessUsageDescription</key>
-	<string>Wokyis uses your calendar to display today's agenda on screen.</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 </dict>
