@@ -5,6 +5,7 @@ struct CalendarPicker: View {
     let calendars: [EKCalendar]
     @Binding var selectedIDs: Set<String>
     var onLightBackground: Bool = false
+    var showBackground: Bool = true
 
     private var foreground: Color { onLightBackground ? .black : .white }
     private var secondaryForeground: Color { onLightBackground ? Color.black.opacity(0.5) : Color.white.opacity(0.5) }
@@ -50,6 +51,6 @@ struct CalendarPicker: View {
                 }
             }
         }
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14))
+        .background(showBackground ? AnyShapeStyle(.ultraThinMaterial) : AnyShapeStyle(.clear), in: RoundedRectangle(cornerRadius: 14))
     }
 }
