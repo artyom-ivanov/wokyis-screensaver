@@ -25,7 +25,17 @@ struct CalendarView: View {
                     Divider()
                         .background(theme.secondaryText.opacity(0.3))
 
-                    if store.events.isEmpty {
+                    let allDay = store.events.filter(\.isAllDay)
+                    let timed  = store.events.filter { !$0.isAllDay }
+
+                    if !allDay.isEmpty {
+                        AllDayEventsView(events: allDay, theme: theme)
+
+                        Divider()
+                            .background(theme.secondaryText.opacity(0.15))
+                    }
+
+                    if timed.isEmpty && allDay.isEmpty {
                         VStack(spacing: 12) {
                             Image(systemName: "checkmark.circle")
                                 .font(.system(size: 36, weight: .light))
@@ -35,8 +45,8 @@ struct CalendarView: View {
                                 .foregroundStyle(theme.secondaryText)
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    } else {
-                        AgendaTimelineView(events: store.events, theme: theme, scrollTrigger: scrollTrigger)
+                    } else if !timed.isEmpty {
+                        AgendaTimelineView(events: timed, theme: theme, scrollTrigger: scrollTrigger)
                             .padding(.horizontal, 16)
                             .padding(.top, 8)
                     }
