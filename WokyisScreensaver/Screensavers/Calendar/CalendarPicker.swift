@@ -50,7 +50,6 @@ struct CalendarPicker: View {
                 }
             }
         }
-        .frame(width: 260)
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14))
     }
 }
