@@ -5,6 +5,8 @@ struct CalendarView: View {
     @ObservedObject var store: CalendarStore
     let theme: CalendarTheme
     var scrollTrigger: UUID = UUID()
+    @Binding var showingSetup: Bool
+    @Binding var selectedCalendarIDs: Set<String>
 
     var body: some View {
         ZStack {
@@ -19,29 +21,38 @@ struct CalendarView: View {
                     onOpenSettings: { store.openSystemSettings() }
                 )
             case .authorized:
-                VStack(spacing: 0) {
-                    let allDay = store.events.filter(\.isAllDay)
-                    let timed  = store.events.filter { !$0.isAllDay }
+                if showingSetup {
+                    CalendarSetupView(
+                        calendars: store.availableCalendars,
+                        selectedIDs: $selectedCalendarIDs,
+                        theme: theme,
+                        onDone: { showingSetup = false }
+                    )
+                } else {
+                    VStack(spacing: 0) {
+                        let allDay = store.events.filter(\.isAllDay)
+                        let timed  = store.events.filter { !$0.isAllDay }
 
-                    CalendarHeaderView(theme: theme, allDayEvents: allDay)
+                        CalendarHeaderView(theme: theme, allDayEvents: allDay)
 
-                    Divider()
-                        .background(theme.secondaryText.opacity(0.3))
+                        Divider()
+                            .background(theme.secondaryText.opacity(0.3))
 
-                    if timed.isEmpty && allDay.isEmpty {
-                        VStack(spacing: 12) {
-                            Image(systemName: "checkmark.circle")
-                                .font(.system(size: 36, weight: .light))
-                                .foregroundStyle(theme.secondaryText)
-                            Text("No events today")
-                                .font(.system(size: 16))
-                                .foregroundStyle(theme.secondaryText)
+                        if timed.isEmpty && allDay.isEmpty {
+                            VStack(spacing: 12) {
+                                Image(systemName: "checkmark.circle")
+                                    .font(.system(size: 36, weight: .light))
+                                    .foregroundStyle(theme.secondaryText)
+                                Text("No events today")
+                                    .font(.system(size: 16))
+                                    .foregroundStyle(theme.secondaryText)
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        } else if !timed.isEmpty {
+                            AgendaTimelineView(events: timed, theme: theme, scrollTrigger: scrollTrigger)
+                                .padding(.horizontal, 16)
+                                .padding(.top, 8)
                         }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    } else if !timed.isEmpty {
-                        AgendaTimelineView(events: timed, theme: theme, scrollTrigger: scrollTrigger)
-                            .padding(.horizontal, 16)
-                            .padding(.top, 8)
                     }
                 }
             }

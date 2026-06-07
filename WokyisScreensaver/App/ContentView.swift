@@ -22,6 +22,8 @@ struct ContentView: View {
     @State private var noiseSettings = TopographicSettings()
     @State private var golReseedTick: Int = 0
     @State private var pickerVisible: Bool = false
+    @AppStorage("calendarSetupDone") private var calendarSetupDone: Bool = false
+    @State private var showingCalendarSetup: Bool = false
     @State private var hoverState = HoverState()
 
     private var selection: Binding<ScreensaverID> {
@@ -138,6 +140,22 @@ struct ContentView: View {
                         }
                         .buttonStyle(.plain)
 
+                        Button {
+                            showingCalendarSetup = true
+                        } label: {
+                            HStack(spacing: 6) {
+                                Image(systemName: "calendar")
+                                    .font(.system(size: 13, weight: .medium))
+                                Text("Calendars")
+                                    .font(.system(size: 13, weight: .medium))
+                            }
+                            .foregroundStyle(pickerOnLightBackground ? Color.black : Color.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(.ultraThinMaterial, in: Capsule())
+                        }
+                        .buttonStyle(.plain)
+
                         CalendarThemePicker(
                             selection: calendarTheme,
                             onLightBackground: pickerOnLightBackground
@@ -149,18 +167,18 @@ struct ContentView: View {
             }
             .allowsHitTesting(pickerVisible)
 
-            if pickerVisible && selection.wrappedValue == .calendar && !calendarStore.availableCalendars.isEmpty {
-                CalendarPicker(
-                    calendars: calendarStore.availableCalendars,
-                    selectedIDs: calendarSelectedIDs,
-                    onLightBackground: pickerOnLightBackground
-                )
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .transition(.opacity)
-                .allowsHitTesting(true)
-            }
         }
         .animation(.easeInOut(duration: 0.18), value: pickerVisible)
+        .onChange(of: calendarStore.authStatus) { _, newStatus in
+            if newStatus == .authorized && !calendarSetupDone {
+                showingCalendarSetup = true
+            }
+        }
+        .onChange(of: showingCalendarSetup) { _, showing in
+            if !showing {
+                calendarSetupDone = true
+            }
+        }
         .onChange(of: calendarIDsRaw) { _, newValue in
             let ids = newValue.split(separator: ",").map(String.init)
             calendarStore.selectedCalendarIDs = Set(ids.filter { !$0.isEmpty })
@@ -190,7 +208,13 @@ struct ContentView: View {
                 showSeconds: flipClockShowSeconds
             )
         case .calendar:
-            CalendarView(store: calendarStore, theme: calendarTheme.wrappedValue, scrollTrigger: calendarScrollTrigger)
+            CalendarView(
+                store: calendarStore,
+                theme: calendarTheme.wrappedValue,
+                scrollTrigger: calendarScrollTrigger,
+                showingSetup: $showingCalendarSetup,
+                selectedCalendarIDs: calendarSelectedIDs
+            )
         }
     }
 
