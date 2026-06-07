@@ -125,10 +125,11 @@ struct AgendaTimelineView: View {
                         }
 
                         // Scroll target anchor: current time minus 20 min
-                        Color.clear
-                            .frame(width: 1, height: 1)
-                            .padding(.top, scrollTargetY)
-                            .id("scrollTarget")
+                        // VStack spacer gives real layout height so proxy.scrollTo works
+                        VStack(spacing: 0) {
+                            Color.clear.frame(height: max(scrollTargetY, 0))
+                            Color.clear.frame(width: 1, height: 1).id("scrollTarget")
+                        }
 
                         // Current time indicator
                         HStack(spacing: 0) {
