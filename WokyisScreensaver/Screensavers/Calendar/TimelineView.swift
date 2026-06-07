@@ -48,10 +48,13 @@ private func assignColumns(_ events: [EKEvent]) -> [PositionedEvent] {
 struct AgendaTimelineView: View {
     let events: [EKEvent]
     let theme: CalendarTheme
+    var scrollTrigger: UUID = UUID()
 
     @State private var now = Date()
+    @State private var lastManualScroll: Date = .distantPast
 
     private let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
+    private let autoScrollTimer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
 
     private var currentHour: Int { Calendar.current.component(.hour, from: now) }
     private var currentMinute: Int { Calendar.current.component(.minute, from: now) }
@@ -68,6 +71,13 @@ struct AgendaTimelineView: View {
     private func eventHeight(for event: EKEvent) -> CGFloat {
         let duration = event.endDate.timeIntervalSince(event.startDate)
         return max(CGFloat(duration / 3600) * hourHeight - eventSpacing, 44)
+    }
+
+    private func scrollToCurrent(proxy: ScrollViewProxy) {
+        let targetHour = max(currentHour - 1, 0)
+        withAnimation(.easeInOut(duration: 0.8)) {
+            proxy.scrollTo("hour_\(targetHour)", anchor: .top)
+        }
     }
 
     var body: some View {
@@ -137,11 +147,18 @@ struct AgendaTimelineView: View {
                 }
                 .frame(height: CGFloat(24) * hourHeight + 40)
             }
-            .onAppear {
-                let scrollHour = max(currentHour - 2, 0)
-                proxy.scrollTo("hour_\(scrollHour)", anchor: .top)
-            }
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 1)
+                    .onChanged { _ in lastManualScroll = Date() }
+            )
+            .onAppear { scrollToCurrent(proxy: proxy) }
+            .onChange(of: scrollTrigger) { scrollToCurrent(proxy: proxy) }
             .onReceive(timer) { now = $0 }
+            .onReceive(autoScrollTimer) { _ in
+                if Date().timeIntervalSince(lastManualScroll) >= 30 {
+                    scrollToCurrent(proxy: proxy)
+                }
+            }
         }
     }
 

@@ -4,6 +4,7 @@ import EventKit
 struct CalendarView: View {
     @ObservedObject var store: CalendarStore
     let theme: CalendarTheme
+    var scrollTrigger: UUID = UUID()
 
     var body: some View {
         ZStack {
@@ -35,7 +36,7 @@ struct CalendarView: View {
                         }
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                     } else {
-                        AgendaTimelineView(events: store.events, theme: theme)
+                        AgendaTimelineView(events: store.events, theme: theme, scrollTrigger: scrollTrigger)
                             .padding(.horizontal, 16)
                             .padding(.top, 8)
                     }
