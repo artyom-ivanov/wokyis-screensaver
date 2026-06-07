@@ -62,7 +62,7 @@ struct EventCardView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .padding(.horizontal, 28)
         .padding(.vertical, 16)
-        .background(theme.cardFill, in: RoundedRectangle(cornerRadius: 10))
+        .background(theme.cardFill, in: RoundedRectangle(cornerRadius: 32, style: .continuous))
     }
 }
 
