@@ -39,6 +39,7 @@ struct CalendarPicker: View {
                     }
                     .padding(.horizontal, 18)
                     .padding(.vertical, 12)
+                    .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.plain)
 
