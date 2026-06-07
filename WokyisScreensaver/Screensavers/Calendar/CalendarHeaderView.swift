@@ -31,9 +31,10 @@ struct CalendarHeaderView: View {
                         .foregroundStyle(theme.secondaryText)
                 } else {
                     let titles = allDayEvents.compactMap(\.title).joined(separator: ", ")
-                    Text("All day: \(titles)")
+                    Text("ALL DAY: \(titles)")
                         .font(.system(size: 28, weight: .semibold))
                         .foregroundStyle(theme.secondaryText)
+                        .tracking(3)
                         .lineLimit(1)
                 }
                 Text(dateFormatter.string(from: now))

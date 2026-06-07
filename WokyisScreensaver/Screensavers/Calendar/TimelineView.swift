@@ -73,10 +73,13 @@ struct AgendaTimelineView: View {
         return max(CGFloat(duration / 3600) * hourHeight - eventSpacing, 44)
     }
 
+    private var scrollTargetY: CGFloat {
+        max(currentTimeY - (20.0 / 60.0) * hourHeight, 0)
+    }
+
     private func scrollToCurrent(proxy: ScrollViewProxy) {
-        let targetHour = max(currentHour - 1, 0)
         withAnimation(.easeInOut(duration: 0.8)) {
-            proxy.scrollTo("hour_\(targetHour)", anchor: .top)
+            proxy.scrollTo("scrollTarget", anchor: .top)
         }
     }
 
@@ -120,6 +123,12 @@ struct AgendaTimelineView: View {
                                 .offset(x: xOffset, y: yOffset(for: pe.event.startDate))
                                 .opacity(isPast ? 0.35 : 1.0)
                         }
+
+                        // Scroll target anchor: current time minus 20 min
+                        Color.clear
+                            .frame(width: 1, height: 1)
+                            .padding(.top, scrollTargetY)
+                            .id("scrollTarget")
 
                         // Current time indicator
                         HStack(spacing: 0) {
