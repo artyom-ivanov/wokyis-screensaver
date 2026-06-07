@@ -3,6 +3,7 @@ import EventKit
 
 struct CalendarHeaderView: View {
     let theme: CalendarTheme
+    var allDayEvents: [EKEvent] = []
     @State private var now = Date()
 
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -23,10 +24,18 @@ struct CalendarHeaderView: View {
     var body: some View {
         HStack(alignment: .center) {
             VStack(alignment: .leading, spacing: 2) {
-                Text("TODAY")
-                    .font(.system(size: 28, weight: .semibold))
-                    .tracking(3)
-                    .foregroundStyle(theme.secondaryText)
+                if allDayEvents.isEmpty {
+                    Text("TODAY")
+                        .font(.system(size: 28, weight: .semibold))
+                        .tracking(3)
+                        .foregroundStyle(theme.secondaryText)
+                } else {
+                    let titles = allDayEvents.compactMap(\.title).joined(separator: ", ")
+                    Text("All day: \(titles)")
+                        .font(.system(size: 28, weight: .semibold))
+                        .foregroundStyle(theme.secondaryText)
+                        .lineLimit(1)
+                }
                 Text(dateFormatter.string(from: now))
                     .font(.system(size: 72, weight: .semibold))
                     .foregroundStyle(theme.primaryText)

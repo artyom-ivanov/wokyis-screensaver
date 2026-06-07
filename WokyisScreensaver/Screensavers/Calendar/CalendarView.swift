@@ -20,20 +20,13 @@ struct CalendarView: View {
                 )
             case .authorized:
                 VStack(spacing: 0) {
-                    CalendarHeaderView(theme: theme)
-
-                    Divider()
-                        .background(theme.secondaryText.opacity(0.3))
-
                     let allDay = store.events.filter(\.isAllDay)
                     let timed  = store.events.filter { !$0.isAllDay }
 
-                    if !allDay.isEmpty {
-                        AllDayEventsView(events: allDay, theme: theme)
+                    CalendarHeaderView(theme: theme, allDayEvents: allDay)
 
-                        Divider()
-                            .background(theme.secondaryText.opacity(0.15))
-                    }
+                    Divider()
+                        .background(theme.secondaryText.opacity(0.3))
 
                     if timed.isEmpty && allDay.isEmpty {
                         VStack(spacing: 12) {
@@ -76,7 +69,6 @@ private func mockEvent(
 #Preview("Dark", traits: .fixedLayout(width: 1280, height: 720)) {
     let ekStore = EKEventStore()
     let events: [EKEvent] = [
-        mockEvent(ekStore, title: "Morning standup",  startHour: 0.0,  durationMinutes: 30,  location: "Zoom")
         mockEvent(ekStore, title: "Morning standup",  startHour: 9.0,  durationMinutes: 30,  location: "Zoom"),
         mockEvent(ekStore, title: "1:1 with Priya",   startHour: 10.5, durationMinutes: 60,  location: "Room Aster"),
         mockEvent(ekStore, title: "Design review",    startHour: 14.0, durationMinutes: 60,  location: "Room Vega"),
