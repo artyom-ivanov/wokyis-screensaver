@@ -47,7 +47,7 @@ struct EventCardView: View {
     }
 
     var body: some View {
-        HStack(spacing: 0) {
+        HStack(alignment: .top, spacing: 0) {
             if showAccent, let cgColor = event.calendar?.cgColor {
                 Capsule()
                     .fill(Color(cgColor: cgColor))
