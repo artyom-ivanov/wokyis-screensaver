@@ -4,10 +4,13 @@ Minimalist macOS screensaver-style app with four switchable visuals. Dependency-
 
 ![demo](docs/demo.gif)
 
-| Topographic | Game of Life | Flip Clock | Calendar |
-| :---: | :---: | :---: | :---: |
-| ![Topographic](docs/topographic.png) | ![Game of Life](docs/game-of-life.png) | ![Flip Clock](docs/flip-clock.png) | ![Calendar](docs/calendar.png) |
-| Simplex-noise contour lines. | GPU cellular automaton with trails. | Locale-aware split-flap clock. | Today's agenda on a live timeline. |
+| Topographic | Game of Life |
+| :---: | :---: |
+| ![Topographic](docs/topographic.png) | ![Game of Life](docs/game-of-life.png) |
+| Simplex-noise contour lines. | GPU cellular automaton with trails. |
+| **Flip Clock** | **Calendar** |
+| ![Flip Clock](docs/flip-clock.png) | ![Calendar](docs/calendar.png) |
+| Locale-aware split-flap clock. | Today's agenda on a live timeline. |
 
 Hover for the picker; `Esc` to quit.
 

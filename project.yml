@@ -22,12 +22,19 @@ targets:
       properties:
         CFBundleName: WokyisScreensaver
         CFBundleDisplayName: Wokyis Screensaver
+        CFBundleShortVersionString: "1.1"
+        CFBundleVersion: "2"
         LSApplicationCategoryType: public.app-category.graphics-design
         NSHumanReadableCopyright: ""
         NSPrincipalClass: NSApplication
         NSMainStoryboardFile: ""
         NSHighResolutionCapable: true
         CFBundleIconName: AppIcon
+        NSCalendarsFullAccessUsageDescription: Wokyis uses your calendar to display today's agenda on screen.
+    entitlements:
+      path: WokyisScreensaver/WokyisScreensaver.entitlements
+      properties:
+        com.apple.security.personal-information.calendars: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: ai.unreallabs.wokyis-screensaver
