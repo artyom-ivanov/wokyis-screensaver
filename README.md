@@ -1,13 +1,13 @@
 # Wokyis Screensaver
 
-Minimalist macOS screensaver-style app with three switchable visuals. Dependency-free, single binary.
+Minimalist macOS screensaver-style app with four switchable visuals. Dependency-free, single binary.
 
 ![demo](docs/demo.gif)
 
-| Topographic | Game of Life | Flip Clock |
-| :---: | :---: | :---: |
-| ![Topographic](docs/topographic.png) | ![Game of Life](docs/game-of-life.png) | ![Flip Clock](docs/flip-clock.png) |
-| Simplex-noise contour lines. | GPU cellular automaton with trails. | Locale-aware split-flap clock. |
+| Topographic | Game of Life | Flip Clock | Calendar |
+| :---: | :---: | :---: | :---: |
+| ![Topographic](docs/topographic.png) | ![Game of Life](docs/game-of-life.png) | ![Flip Clock](docs/flip-clock.png) | ![Calendar](docs/calendar.png) |
+| Simplex-noise contour lines. | GPU cellular automaton with trails. | Locale-aware split-flap clock. | Today's agenda on a live timeline. |
 
 Hover for the picker; `Esc` to quit.
 
